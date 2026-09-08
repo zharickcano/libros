@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Administración — Biblioteca El Sabio</title>
+
+    <!-- Tipografía -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Estilos base y estilos de administración -->
+    <link rel="stylesheet" href="../assets/css/styles.css" />
+    <link rel="stylesheet" href="../assets/css/admin-styles.css" />
+  </head>
+  <body>
+    <!-- ENCABEZADO Y NAVEGACIÓN -->
+    <header class="navbar">
+      <div class="logo-container">
+        <img
+          src="../assets/img/Buho Logo.png"
+          alt="Logo Biblioteca El Sabio"
+          class="logo-img"
+        />
+        <div class="brand-text">
+          <h1>Biblioteca <span>El Sabio</span></h1>
+        </div>
+      </div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Ver Sitio Web</a></li>
+          <li><a href="cuenta-admin.html" class="active">Panel Admin</a></li>
+
+          <!-- CONTENEDOR DINÁMICO DE SESIÓN -->
+          <li id="nav-auth-container">
+            <a href="login.html" class="nav-user-btn">
+              <span class="user-icon">👤</span>
+              <span class="user-text">Mi Cuenta</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="admin-container">
+      <!-- PANEL DE BIENVENIDA -->
+      <section class="admin-header-banner">
+        <div>
+          <span class="badge-admin">🔐 Modo Administrador</span>
+          <h2>Gestión del Bosque de Libros</h2>
+          <p>
+            Control de inventario, altas, modificaciones y bajas del catálogo.
+          </p>
+        </div>
+      </section>
+
+      <!-- METRICAS RÁPIDAS -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">📚</span>
+          <div>
+            <h3 id="stat-total">0</h3>
+            <p>Total en Catálogo</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">✅</span>
+          <div>
+            <h3 id="stat-disponibles">0</h3>
+            <p>Disponibles</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">🏷️</span>
+          <div>
+            <h3 id="stat-categorias">General</h3>
+            <p>Sección Principal</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FORMULARIO DE AGREGAR / EDITAR -->
+      <!-- SECCIÓN: REGISTRO / EDICIÓN DE LIBROS (ADMIN) -->
+      <!-- SECCIÓN: REGISTRO / EDICIÓN DE LIBROS (ADMIN) -->
+      <section class="admin-card">
+        <h2 id="form-card-title">
+          <span id="form-icon">📖</span> Registrar / Editar Libro
+        </h2>
+
+        <form id="form-libro" class="admin-form">
+          <!-- Campo Oculto para almacenar el ID en modo edición -->
+          <input type="hidden" id="libro-id" />
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="libro-titulo">Título del Libro *</label>
+              <input
+                type="text"
+                id="libro-titulo"
+                placeholder="Ej. Cien Años de Soledad"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="libro-autor">Autor *</label>
+              <input
+                type="text"
+                id="libro-autor"
+                placeholder="Ej. Gabriel García Márquez"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="libro-categoria">Categoría *</label>
+              <select id="libro-categoria" required>
+                <option value="">Seleccione una categoría</option>
+                <option value="ficcion">Ficción</option>
+                <option value="clasicos">Clásicos</option>
+                <option value="ciencia-ficcion">Ciencia Ficción</option>
+                <option value="historia">Historia</option>
+                <option value="misterio">Misterio</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="libro-color">Estilo de Tomo / Lomo *</label>
+              <select id="libro-color" required>
+                <option value="book-red">📕 Rojo Tradicional</option>
+                <option value="book-blue">📘 Azul Clásico</option>
+                <option value="book-orange">📙 Naranja Antiguo</option>
+                <option value="book-green">📗 Verde Naturaleza</option>
+                <option value="book-dark">📓 Oscuro / Elegante</option>
+                <option value="book-purple">🔮 Púrpura Fantasía</option>
+                <option value="book-teal">📘 Turquesa</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="libro-estado">Estado *</label>
+              <select id="libro-estado" required>
+                <option value="Disponible">Disponible</option>
+                <option value="Prestado">Prestado</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="libro-prestamos"
+                >Préstamos esta semana (Salón de la Fama)</label
+              >
+              <input
+                type="number"
+                id="libro-prestamos"
+                min="0"
+                value="0"
+                placeholder="Ej. 25"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="libro-descripcion">Sinopsis / Descripción *</label>
+            <textarea
+              id="libro-descripcion"
+              rows="4"
+              placeholder="Escribe el resumen del libro que verá el lector al hacer clic..."
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              id="btn-guardar-libro"
+            >
+              💾 Guardar Libro en Catálogo
+            </button>
+            <button type="reset" class="btn btn-secondary" id="btn-cancelar">
+              Limpiar Formulario
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- TABLA DE SOLICITUDES PENDIENTES EN CUENTA-ADMIN.HTML -->
+      <section class="admin-card">
+        <h2>📥 Gestión de Préstamos (Pendientes y Activos)</h2>
+
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Usuario (Email)</th>
+              <th>Libro</th>
+              <th>Fecha Solicitud</th>
+              <th>Fecha Límite</th>
+              <!-- COLUMNA NUEVA -->
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-solicitudes-body">
+            <!-- Aquí se inyectarán las filas -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- TABLA DE CONTROL DE INVENTARIO -->
+      <section class="admin-card">
+        <div class="section-header">
+          <span class="icon">📋</span>
+          <h2>Inventario Completo</h2>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-libros">
+              <tr>
+                <td colspan="4" class="text-center">Cargando inventario...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- LÓGICA FIREBASE ADMIN (CRUD COMPLETO) -->
+    <!-- LÓGICA FIREBASE ADMIN (CRUD COMPLETO) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        doc,
+        updateDoc,
+        deleteDoc,
+        getDoc,
+        serverTimestamp,
+        query,
+        where,
+        increment,
+      } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC8Fcb60NXBVnfoIqYy903loTapqrVWc4g",
+        authDomain: "mi-biblioteca-web-47e11.firebaseapp.com",
+        projectId: "mi-biblioteca-web-47e11",
+        storageBucket: "mi-biblioteca-web-47e11.firebasestorage.app",
+        messagingSenderId: "152963035735",
+        appId: "1:152963035735:web:203b25f135e75f5f8ae912",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // 1. SELECTORES DEL INVENTARIO
+      const form = document.getElementById("form-libro");
+      const inputId = document.getElementById("libro-id");
+      const inputTitulo = document.getElementById("libro-titulo");
+      const inputAutor = document.getElementById("libro-autor");
+      const selectCategoria = document.getElementById("libro-categoria");
+      const selectColor = document.getElementById("libro-color");
+      const selectEstado = document.getElementById("libro-estado");
+      const inputPrestamos = document.getElementById("libro-prestamos");
+      const inputDescripcion = document.getElementById("libro-descripcion");
+
+      const btnSubmit = document.getElementById("btn-guardar-libro");
+      const btnCancelar = document.getElementById("btn-cancelar");
+      const tablaLibros = document.getElementById("tabla-libros");
+      const formTitle = document.getElementById("form-card-title");
+      const formIcon = document.getElementById("form-icon");
+
+      const statTotal = document.getElementById("stat-total");
+      const statDisponibles = document.getElementById("stat-disponibles");
+
+      // 2. SELECTORES DE SOLICITUDES
+      const tablaSolicitudes = document.getElementById(
+        "tabla-solicitudes-body",
+      );
+
+      // ==========================================
+      // MÓDULO 1: SOLICITUDES Y PRÉSTAMOS ACTIVOS
+      // ==========================================
+      async function cargarSolicitudes() {
+        try {
+          // Traemos TODOS los préstamos
+          const querySnapshot = await getDocs(collection(db, "prestamos"));
+          tablaSolicitudes.innerHTML = "";
+          let hayRegistros = false;
+
+          querySnapshot.forEach((docSnap) => {
+            const solicitud = docSnap.data();
+            const id = docSnap.id;
+
+            // Opcional: si quieres ocultar los que ya fueron devueltos, descomenta la siguiente línea:
+            // if (solicitud.estado === "devuelto") return;
+
+            hayRegistros = true;
+
+            // Formatear fechas
+            let fechaSoliStr = solicitud.fechaSolicitud
+              ? solicitud.fechaSolicitud.toDate().toLocaleDateString()
+              : "Desconocida";
+            let fechaLimiteStr = solicitud.fechaDevolucion
+              ? solicitud.fechaDevolucion.toDate().toLocaleDateString()
+              : "---";
+
+            // Determinar qué botones y badge (etiqueta) mostrar según el estado
+            let estadoBadge = "";
+            let botonesAccion = "";
+
+            if (solicitud.estado === "pendiente") {
+              estadoBadge =
+                '<span class="badge badge-warning">Pendiente</span>';
+              botonesAccion = `
+            <button class="btn btn-success btn-sm btn-aprobar" data-id="${id}" data-titulo="${solicitud.libroTitulo}">Aprobar</button>
+            <button class="btn btn-danger btn-sm btn-rechazar" data-id="${id}">Rechazar</button>
+          `;
+            } else if (solicitud.estado === "activo") {
+              estadoBadge =
+                '<span class="badge badge-success">Activo / Aprobado</span>';
+              botonesAccion = `
+            <button class="btn btn-primary btn-sm btn-devolver" data-id="${id}" data-titulo="${solicitud.libroTitulo}">Recibir / Devuelto</button>
+          `;
+            } else {
+              estadoBadge = `<span class="badge badge-secondary">${solicitud.estado}</span>`;
+              botonesAccion = `<button class="btn btn-danger btn-sm btn-rechazar" data-id="${id}">Borrar</button>`;
+            }
+
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+          <td>${solicitud.usuarioEmail}</td>
+          <td>${solicitud.libroTitulo}</td>
+          <td>${fechaSoliStr}</td>
+          <td><strong>${fechaLimiteStr}</strong></td> <!-- FECHA LÍMITE MOSTRADA AQUÍ -->
+          <td>${estadoBadge}</td>
+          <td>${botonesAccion}</td>
+        `;
+            tablaSolicitudes.appendChild(fila);
+          });
+
+          if (!hayRegistros) {
+            tablaSolicitudes.innerHTML =
+              '<tr><td colspan="6" class="text-center">No hay préstamos ni solicitudes en este momento.</td></tr>';
+          } else {
+            asignarEventosSolicitudes();
+          }
+        } catch (error) {
+          console.error("Error al cargar solicitudes:", error);
+          tablaSolicitudes.innerHTML =
+            '<tr><td colspan="6" class="text-center error-text">Error al cargar datos.</td></tr>';
+        }
+      }
+
+      function asignarEventosSolicitudes() {
+        // 1. EVENTO APROBAR PRÉSTAMO
+        document.querySelectorAll(".btn-aprobar").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const idPrestamo = e.target.getAttribute("data-id");
+            const tituloLibro = e.target.getAttribute("data-titulo");
+
+            if (confirm(`¿Aprobar préstamo de "${tituloLibro}" por 14 días?`)) {
+              try {
+                const fechaDev = new Date();
+                fechaDev.setDate(fechaDev.getDate() + 14);
+
+                // Actualizar préstamo a activo y setear fecha límite
+                await updateDoc(doc(db, "prestamos", idPrestamo), {
+                  estado: "activo",
+                  fechaDevolucion: fechaDev,
+                });
+
+                // Pasar libro a "Prestado" en el inventario
+                const q = query(
+                  collection(db, "libros"),
+                  where("titulo", "==", tituloLibro),
+                );
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                  const libroDoc = querySnapshot.docs[0];
+                  await updateDoc(doc(db, "libros", libroDoc.id), {
+                    estado: "Prestado",
+                    disponible: false,
+                    prestamosSemanales: increment(1)
+                  });
+                }
+                alert("Préstamo aprobado.");
+                cargarSolicitudes();
+                cargarInventario();
+              } catch (error) {
+                console.error("Error:", error);
+              }
+            }
+          });
+        });
+
+        // 2. EVENTO MARCAR COMO DEVUELTO (NUEVO)
+        document.querySelectorAll(".btn-devolver").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const idPrestamo = e.target.getAttribute("data-id");
+            const tituloLibro = e.target.getAttribute("data-titulo");
+
+            if (
+              confirm(
+                `¿Confirmas que el usuario devolvió el libro "${tituloLibro}"?`,
+              )
+            ) {
+              try {
+                // Eliminar el préstamo (o cambiar a estado "devuelto")
+                await deleteDoc(doc(db, "prestamos", idPrestamo));
+
+                // Volver a poner el libro "Disponible" en el inventario
+                const q = query(
+                  collection(db, "libros"),
+                  where("titulo", "==", tituloLibro),
+                );
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                  const libroDoc = querySnapshot.docs[0];
+                  await updateDoc(doc(db, "libros", libroDoc.id), {
+                    estado: "Disponible",
+                    disponible: true,
+                  });
+                }
+                alert(
+                  "Libro devuelto con éxito. Ya está disponible en el catálogo.",
+                );
+                cargarSolicitudes();
+                cargarInventario();
+              } catch (error) {
+                console.error("Error:", error);
+              }
+            }
+          });
+        });
+
+        // 3. EVENTO RECHAZAR / BORRAR
+        document.querySelectorAll(".btn-rechazar").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const id = e.target.getAttribute("data-id");
+            if (confirm("¿Eliminar este registro?")) {
+              await deleteDoc(doc(db, "prestamos", id));
+              cargarSolicitudes();
+            }
+          });
+        });
+      }
+
+      document.querySelectorAll(".btn-rechazar").forEach((btn) => {
+        btn.addEventListener("click", async (e) => {
+          const id = e.target.getAttribute("data-id");
+          if (confirm("¿Estás seguro de rechazar esta solicitud?")) {
+            // Podemos actualizar el estado a "rechazado" o borrar el documento. Aquí lo eliminamos para limpiar.
+            await deleteDoc(doc(db, "prestamos", id));
+            cargarSolicitudes(); // Recargar tabla
+          }
+        });
+      });
+
+      // ==========================================
+      // MÓDULO 2: GESTIÓN DE INVENTARIO (CRUD)
+      // ==========================================
+      async function cargarInventario() {
+        try {
+          const querySnapshot = await getDocs(collection(db, "libros"));
+          tablaLibros.innerHTML = "";
+          let total = 0;
+          let disponibles = 0;
+
+          if (querySnapshot.empty) {
+            tablaLibros.innerHTML =
+              '<tr><td colspan="4" class="text-center">No hay libros registrados.</td></tr>';
+            statTotal.innerText = "0";
+            statDisponibles.innerText = "0";
+            return;
+          }
+
+          querySnapshot.forEach((documento) => {
+            total++;
+            const libro = documento.data();
+            const id = documento.id;
+            const esDisponible =
+              libro.estado === "Disponible" || libro.disponible === true;
+
+            if (esDisponible) disponibles++;
+
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+          <td><strong>${libro.titulo}</strong></td>
+          <td>${libro.autor}</td>
+          <td>
+            <span class="status-pill ${esDisponible ? "status-ok" : "status-off"}">
+              ${esDisponible ? "Disponible" : "Prestado"}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-action btn-edit" data-id="${id}">✏️ Editar</button>
+            <button class="btn-action btn-delete" data-id="${id}">🗑️ Eliminar</button>
+          </td>
+        `;
+            tablaLibros.appendChild(fila);
+          });
+
+          statTotal.innerText = total;
+          statDisponibles.innerText = disponibles;
+          asignarEventosBotones();
+        } catch (error) {
+          console.error("Error al cargar inventario:", error);
+        }
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = inputId.value;
+        const data = {
+          titulo: inputTitulo.value.trim(),
+          autor: inputAutor.value.trim(),
+          estado: selectEstado.value,
+          disponible: selectEstado.value === "Disponible",
+          categoria: selectCategoria.value,
+          color: selectColor.value,
+          prestamosSemanales: parseInt(inputPrestamos.value) || 0,
+          descripcion: inputDescripcion.value.trim(),
+        };
+
+        try {
+          if (id) {
+            await updateDoc(doc(db, "libros", id), data);
+            alert("Libro actualizado con éxito.");
+          } else {
+            await addDoc(collection(db, "libros"), {
+              ...data,
+              creadoEn: serverTimestamp(),
+            });
+            alert("¡Libro registrado!");
+          }
+          resetFormulario();
+          cargarInventario();
+        } catch (error) {
+          alert("Hubo un error al guardar: " + error.message);
+        }
+      });
+
+      function asignarEventosBotones() {
+        document.querySelectorAll(".btn-edit").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const id = e.target.getAttribute("data-id");
+            const docSnap = await getDoc(doc(db, "libros", id));
+            if (docSnap.exists()) {
+              const libro = docSnap.data();
+              inputId.value = id;
+              inputTitulo.value = libro.titulo || "";
+              inputAutor.value = libro.autor || "";
+              selectEstado.value =
+                libro.estado || (libro.disponible ? "Disponible" : "Prestado");
+              selectCategoria.value = libro.categoria || "";
+              selectColor.value = libro.color || "book-red";
+              inputPrestamos.value = libro.prestamosSemanales || 0;
+              inputDescripcion.value = libro.descripcion || "";
+
+              if (formIcon) formIcon.innerText = "✏️";
+              btnSubmit.innerText = "💾 Actualizar Cambios";
+              window.scrollTo({ top: 200, behavior: "smooth" });
+            }
+          });
+        });
+
+        document.querySelectorAll(".btn-delete").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const id = e.target.getAttribute("data-id");
+            if (confirm("¿Estás seguro de eliminar este libro?")) {
+              await deleteDoc(doc(db, "libros", id));
+              cargarInventario();
+            }
+          });
+        });
+      }
+
+      btnCancelar.addEventListener("click", resetFormulario);
+
+      function resetFormulario() {
+        inputId.value = "";
+        form.reset();
+        if (formIcon) formIcon.innerText = "📖";
+        btnSubmit.innerText = "💾 Guardar Libro en Catálogo";
+      }
+
+      // 3. INICIALIZAR AMBAS TABLAS AL CARGAR LA PÁGINA
+      cargarInventario();
+      cargarSolicitudes();
+    </script>
+    <!-- Enlace a la lógica global de navegación y sesión -->
+    <script type="module" src="../js/app.js"></script>
+  </body>
+</html>

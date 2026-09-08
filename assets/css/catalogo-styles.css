@@ -1,0 +1,368 @@
+/* ======================================================
+   ESTILOS DE CATÁLOGO Y ESTANTERÍA VIRTUAL
+   ====================================================== */
+
+.catalogo-container {
+  max-width: 1150px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* HERO CABECERA */
+.catalogo-hero {
+  text-align: center;
+  background: linear-gradient(135deg, var(--color-primary-dark, #0f2942) 0%, var(--color-primary, #1e3a8a) 100%);
+  color: #ffffff;
+  padding: 2.5rem 1.5rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
+}
+
+.catalogo-hero h1 {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.catalogo-hero p {
+  color: #cce3ee;
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* SALÓN DE LA FAMA (LOS MÁS PRESTADOS) */
+.hall-of-fame {
+  background-color: #ffffff;
+  border: 1px solid #e1e9ed;
+  border-radius: 16px;
+  padding: 1.8rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+.section-title-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.section-title-badge h2 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  color: var(--color-primary-dark, #0f2942);
+  margin: 0;
+}
+
+.gold-star {
+  font-size: 1.6rem;
+}
+
+.fame-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+}
+
+.fame-card {
+  background: linear-gradient(145deg, #ffffff, #f7fafc);
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.fame-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+.fame-rank {
+  position: absolute;
+  top: -10px;
+  left: 15px;
+  background-color: #d97706;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.fame-cover {
+  font-size: 2.8rem;
+  background-color: #edf4f8;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.fame-info h3 {
+  font-size: 1.05rem;
+  margin: 0 0 0.2rem 0;
+  color: var(--color-primary-dark, #0f2942);
+}
+
+.fame-info p {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #64748b);
+  margin: 0 0 0.5rem 0;
+}
+
+.borrow-count {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #b45309;
+  background-color: #fef3c7;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+/* FILTRO DE CATEGORÍAS */
+.categories-filter h3 {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  margin-bottom: 0.8rem;
+  color: var(--color-primary-dark, #0f2942);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.chip {
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  color: #475569;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.chip.active {
+  background-color: var(--color-primary, #1e3a8a);
+  color: #ffffff;
+  border-color: var(--color-primary, #1e3a8a);
+}
+
+/* ESTANTERÍA VIRTUAL (SHELF LAYOUT) */
+.bookshelf-section {
+  background-color: #f8fafc;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.shelf-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 1.5rem;
+  padding-bottom: 0;
+}
+
+.shelf-book-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.25 ease;
+}
+
+.shelf-book-item:hover {
+  transform: translateY(-10px) scale(1.03);
+}
+
+/* TOMOS / LOMOS DE LIBRO */
+.book-spine {
+  width: 120px;
+  height: 180px;
+  border-radius: 6px 12px 12px 6px;
+  padding: 12px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 4px 6px 12px rgba(0, 0, 0, 0.2);
+  position: relative;
+  border-left: 5px solid rgba(255, 255, 255, 0.3);
+}
+
+.book-title {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.book-author {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+/* VARIACIONES DE COLOR DE LIBROS */
+.book-red { background: linear-gradient(135deg, #b91c1c, #991b1b); }
+.book-blue { background: linear-gradient(135deg, #1d4ed8, #1e40af); }
+.book-orange { background: linear-gradient(135deg, #c2410c, #9a3412); }
+.book-green { background: linear-gradient(135deg, #15803d, #166534); }
+.book-dark { background: linear-gradient(135deg, #334155, #1e293b); }
+.book-purple { background: linear-gradient(135deg, #6b21a8, #581c87); }
+.book-teal { background: linear-gradient(135deg, #0f766e, #115e59); }
+
+/* MADERA DE LA ESTANTERÍA */
+.shelf-wood {
+  width: 140px;
+  height: 14px;
+  background: linear-gradient(180deg, #8c5a3c 0%, #5c3a21 100%);
+  border-radius: 3px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+  margin-top: 4px;
+}
+
+/* VENTANA EMERGENTE (MODAL) */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 100%;
+  padding: 2rem;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: modalPop 0.25s ease-out;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.modal-body {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.modal-cover-box {
+  width: 110px;
+  height: 150px;
+  background-color: #edf4f8;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+  flex-shrink: 0;
+}
+
+.modal-details { flex: 1; }
+.modal-details h2 { font-family: var(--font-heading); font-size: 1.5rem; margin: 0.4rem 0 0.2rem 0; }
+.modal-author { color: var(--color-text-muted); font-size: 0.95rem; margin-bottom: 0.8rem; }
+
+.modal-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  color: #334155;
+}
+
+.modal-description h4 { margin: 0 0 0.3rem 0; font-size: 0.95rem; }
+.modal-description p { font-size: 0.88rem; color: #475569; line-height: 1.5; margin-bottom: 1.2rem; }
+
+.modal-actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.btn-favorite {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1.5px solid #fca5a5;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-favorite:hover { background-color: #fee2e2; }
+.btn-favorite.favorited { background-color: #dc2626; color: #ffffff; border-color: #dc2626; }
+
+/* ADAPTACIÓN MÓVIL */
+@media (max-width: 650px) {
+  .modal-body { flex-direction: column; align-items: center; text-align: center; }
+  .modal-actions { justify-content: center; width: 100%; }
+  .shelf-row { justify-content: center; }
+}
+
+/* AJUSTE DEL LOGO EN LA BARRA DE NAVEGACIÓN */
+.nav-owl-logo {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  color: var(--color-primary-dark, #1e3a8a);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}

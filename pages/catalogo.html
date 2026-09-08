@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo y Estantería — Biblioteca El Sabio</title>
+
+  <!-- Tipografía -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Estilos base y de Catálogo -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/catalogo-styles.css">
+</head>
+<body>
+
+  <!-- BARRA DE NAVEGACIÓN -->
+  <header class="navbar">
+    <a href="index.html" class="brand-logo">
+      <img src="../assets/img/Buho Logo.png" alt="Logo Biblioteca" class="nav-owl-logo">
+      <span>Biblioteca El Sabio</span>
+    </a>
+
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="catalogo.html" class="active">Catálogo</a></li>
+        <div class="nav-search-box">
+    <input type="text" id="nav-search-input" placeholder="Buscar título o autor..." aria-label="Buscar libro">
+    <button type="button" class="search-btn">🔍</button>
+  </div>
+        
+        <!-- CONTENEDOR DINÁMICO DE SESIÓN -->
+        <li id="nav-auth-container">
+          <a href="login.html" class="nav-user-btn">
+            <span class="user-icon">👤</span>
+            <span class="user-text">Mi Cuenta</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="catalogo-container">
+
+    <!-- CABECERA PRINCIPAL -->
+    <section class="catalogo-hero">
+      <h1>Estantería Virtual & Catálogo</h1>
+      <p>Explora nuestras estantes, descubre las joyas más leídas de la semana o busca por tu categoría favorita.</p>
+    </section>
+
+    <!-- SECCIÓN: SALÓN DE LA FAMA (MÁS PRESTADOS) -->
+    <section class="hall-of-fame">
+      <div class="section-title-badge">
+        <span class="gold-star">🏆</span>
+        <h2>Salón de la Fama — Los Más Prestados de la Semana</h2>
+      </div>
+
+      <!-- Mantén este contenedor INTACTO, aquí es donde tu JS inyectará los libros -->
+      <div class="fame-grid">
+        
+        <!-- Mensaje temporal mientras Firebase carga los datos -->
+        <div style="text-align: center; width: 100%; padding: 2rem; color: #666; font-style: italic;">
+          ⏳ Cargando los libros más populares...
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FILTRO POR CATEGORÍAS -->
+    <section class="categories-filter">
+      <h3>Categorías de la Estantería</h3>
+      <div class="filter-chips">
+        <button class="chip active" onclick="filterCategory('todos', this)">📚 Todos</button>
+        <button class="chip" onclick="filterCategory('ficcion', this)">✨ Ficción</button>
+        <button class="chip" onclick="filterCategory('clasicos', this)">📜 Clásicos</button>
+        <button class="chip" onclick="filterCategory('ciencia-ficcion', this)">🚀 Ciencia Ficción</button>
+        <button class="chip" onclick="filterCategory('historia', this)">🏛️ Historia</button>
+        <button class="chip" onclick="filterCategory('misterio', this)">🔍 Misterio</button>
+      </div>
+    </section>
+
+    <!-- ESTANTERÍA VIRTUAL (SHELF LAYOUT) -->
+    <section class="bookshelf-section">
+      <div class="shelf-row" id="shelf-container">
+
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL / VENTANA EMERGENTE DE DETALLES DEL LIBRO -->
+ <!-- MODAL CON EL BOTÓN FALTANTE -->
+  <div class="modal-overlay" id="book-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeBookModal()">✖</button>
+      
+      <div class="modal-body">
+        <div class="modal-cover-box" id="modal-cover">📖</div>
+        
+        <div class="modal-details">
+          <span class="badge" id="modal-category">Categoría</span>
+          <h2 id="modal-title">Título del Libro</h2>
+          <p class="modal-author" id="modal-author">Autor</p>
+          
+          <div class="modal-meta">
+            <span>⭐ Valoración: <strong id="modal-rating">5/5</strong></span>
+            <span>📌 Estado: <strong id="modal-status">Disponible</strong></span>
+          </div>
+
+          <div class="modal-description">
+            <h4>Sinopsis / Descripción</h4>
+            <p id="modal-description-text">Cargando sinopsis del libro...</p>
+          </div>
+
+          <!-- BOTONES CORREGIDOS -->
+          <div class="modal-actions">
+            <button class="btn btn-primary" id="btn-modal-borrow">📖 Solicitar Préstamo</button>
+            <button class="btn btn-favorite" id="btn-modal-favorite">❤️ Guardar en Favoritos</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h3>🦉 Biblioteca El Sabio</h3>
+          <p>Cultivando la lectura y el aprendizaje en un espacio sereno.</p>
+        </div>
+        <div class="footer-info">
+          <p><strong>Horario:</strong> Lunes a Viernes 08:00 - 18:00 hs</p>
+          <p>© 2026 Biblioteca El Sabio — Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </footer>
+
+  <!-- SCRIPT BASE CORREGIDO -->
+  <script>
+    function openBookModal(title, author, category, description, rating, status) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-author').innerText = 'Por ' + author;
+      document.getElementById('modal-category').innerText = category;
+      document.getElementById('modal-description-text').innerText = description;
+      document.getElementById('modal-rating').innerText = rating;
+      document.getElementById('modal-status').innerText = status;
+
+      const btnBorrow = document.getElementById('btn-modal-borrow');
+      if (status === 'Prestado') {
+        btnBorrow.innerText = '🔒 No Disponible Actualmente';
+        btnBorrow.disabled = true;
+        btnBorrow.style.opacity = '0.6';
+      } else {
+        btnBorrow.innerText = '📖 Solicitar Préstamo';
+        btnBorrow.disabled = false;
+        btnBorrow.style.opacity = '1';
+      }
+
+      document.getElementById('book-modal').classList.add('active');
+    }
+
+    function closeBookModal() {
+      document.getElementById('book-modal').classList.remove('active');
+    }
+
+    window.openBookModal = openBookModal;
+    window.closeBookModal = closeBookModal;
+
+    window.addEventListener('click', (e) => {
+      const modal = document.getElementById('book-modal');
+      if (e.target === modal) closeBookModal();
+    });
+
+    function filterCategory(category, chipBtn) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chipBtn.classList.add('active');
+
+      const books = document.querySelectorAll('.shelf-book-item');
+      books.forEach(book => {
+        if (category === 'todos' || book.getAttribute('data-category') === category) {
+          book.style.display = 'flex';
+        } else {
+          book.style.display = 'none';
+        }
+      });
+    }
+  </script>
+
+  <!-- MÓDULO FIREBASE Y BUSCADOR CORREGIDO -->
+  <!-- MÓDULO FIREBASE, CARGA DE CATÁLOGO Y BUSCADOR -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC8Fcb60NXBVnfoIqYy903loTapqrVWc4g",
+      authDomain: "mi-biblioteca-web-47e11.firebaseapp.com",
+      projectId: "mi-biblioteca-web-47e11",
+      storageBucket: "mi-biblioteca-web-47e11.firebasestorage.app",
+      messagingSenderId: "152963035735",
+      appId: "1:152963035735:web:203b25f135e75f5f8ae912"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ==========================================
+    // 1. CARGAR CATÁLOGO DINÁMICO DESDE FIREBASE
+    // ==========================================
+    const shelfContainer = document.getElementById('shelf-container');
+    const fameContainer = document.querySelector('.fame-grid');
+
+    async function cargarCatalogo() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "libros"));
+        
+        // Limpiamos los libros quemados (estáticos) del HTML
+        shelfContainer.innerHTML = '';
+        if (fameContainer) fameContainer.innerHTML = '';
+
+        let librosArray = [];
+        querySnapshot.forEach((doc) => {
+          librosArray.push({ id: doc.id, ...doc.data() });
+        });
+
+        if (librosArray.length === 0) {
+          shelfContainer.innerHTML = '<p style="color:white; padding: 2rem; width: 100%; text-align: center;">No hay libros registrados aún en la biblioteca.</p>';
+          return;
+        }
+
+        // A. Poblar Estantería Virtual
+        librosArray.forEach(libro => {
+          const titulo = libro.titulo || 'Sin título';
+          const autor = libro.autor || 'Desconocido';
+          const categoria = (libro.categoria || 'general').toLowerCase();
+          const descripcion = libro.descripcion || 'Sin descripción disponible.';
+          const estado = (libro.estado === "Disponible" || libro.disponible) ? "Disponible" : "Prestado";
+          const color = libro.color || 'book-red';
+          
+          const bookDiv = document.createElement('div');
+          bookDiv.className = 'shelf-book-item';
+          bookDiv.setAttribute('data-category', categoria);
+          
+          // Asignar evento click para abrir el modal con los datos limpios
+          bookDiv.addEventListener('click', () => {
+             window.openBookModal(titulo, autor, libro.categoria || 'General', descripcion, 'N/A', estado);
+          });
+
+          bookDiv.innerHTML = `
+            <div class="book-spine ${color}">
+              <span class="book-title">${titulo}</span>
+              <span class="book-author">${autor}</span>
+            </div>
+            <div class="shelf-wood"></div>
+          `;
+          shelfContainer.appendChild(bookDiv);
+        });
+
+        // B. Poblar Salón de la Fama (Top 3 más prestados)
+        // Ordenamos el array de mayor a menor según los préstamos semanales
+        const topLibros = [...librosArray].sort((a, b) => (b.prestamosSemanales || 0) - (a.prestamosSemanales || 0)).slice(0, 3);
+        
+        if (fameContainer && topLibros.length > 0) {
+          const emojisCover = ['📕', '📘', '📙'];
+          
+          topLibros.forEach((libro, index) => {
+            const titulo = libro.titulo || 'Sin título';
+            const autor = libro.autor || 'Desconocido';
+            const prestamos = libro.prestamosSemanales || 0;
+            const estado = (libro.estado === "Disponible" || libro.disponible) ? "Disponible" : "Prestado";
+            const cover = emojisCover[index] || '📓';
+
+            const article = document.createElement('article');
+            article.className = 'fame-card';
+            
+            article.addEventListener('click', () => {
+               window.openBookModal(titulo, autor, libro.categoria || 'General', libro.descripcion || '', 'N/A', estado);
+            });
+
+            article.innerHTML = `
+              <div class="fame-rank">#${index + 1}</div>
+              <div class="fame-cover">${cover}</div>
+              <div class="fame-info">
+                <h3>${titulo}</h3>
+                <p>${autor}</p>
+                <span class="borrow-count">🔥 ${prestamos} préstamos esta semana</span>
+              </div>
+            `;
+            fameContainer.appendChild(article);
+          });
+        }
+
+      } catch (error) {
+        console.error("Error al cargar el catálogo:", error);
+        shelfContainer.innerHTML = '<p style="color:red; text-align:center;">Hubo un error cargando los libros. Verifica tu conexión a Firestore.</p>';
+      }
+    }
+
+    // Inicializamos la carga al entrar a la página
+    cargarCatalogo();
+
+    // ==========================================
+    // 2. SOLICITUD DE PRÉSTAMOS
+    // ==========================================
+    document.getElementById('btn-modal-borrow')?.addEventListener('click', async () => {
+      const user = auth.currentUser;
+
+      if (!user) {
+        alert("Debes iniciar sesión para solicitar un préstamo.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const tituloLibro = document.getElementById('modal-title').innerText;
+
+      try {
+        await addDoc(collection(db, "prestamos"), {
+          usuarioUid: user.uid,
+          usuarioEmail: user.email,
+          libroTitulo: tituloLibro,
+          estado: "pendiente",
+          fechaSolicitud: serverTimestamp(),
+          fechaDevolucion: null
+        });
+
+        alert(`¡Solicitud enviada con éxito para "${tituloLibro}"! Un administrador la revisará pronto.`);
+        window.closeBookModal();
+
+      } catch (error) {
+        console.error("Error al enviar solicitud:", error);
+        alert("Hubo un error al procesar tu solicitud.");
+      }
+    });
+// ==========================================
+    // 3. FAVORITOS (CORREGIDO PARA FIREBASE)
+    // ==========================================
+    document.getElementById('btn-modal-favorite')?.addEventListener('click', async function() {
+      const user = auth.currentUser;
+
+      if (!user) {
+        alert("Debes iniciar sesión para guardar este libro en tus favoritos.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      // Evita agregar el mismo libro varias veces si el usuario presiona el botón repetidamente
+      if (this.classList.contains('favorited')) {
+        alert('Este libro ya fue agregado a tus favoritos en esta sesión.');
+        return;
+      }
+
+      // Capturamos el título y autor desde los textos del Modal
+      const tituloLibro = document.getElementById('modal-title').innerText;
+      let autorLibro = document.getElementById('modal-author').innerText;
+      // Limpiamos la palabra "Por " que le pusiste al abrir el modal
+      autorLibro = autorLibro.replace('Por ', ''); 
+
+      try {
+        // Guardamos el documento en la colección "favoritos"
+        await addDoc(collection(db, "favoritos"), {
+          usuarioEmail: user.email, // Clave para que "Mi cuenta" sepa de quién es
+          titulo: tituloLibro,
+          autor: autorLibro,
+          fechaAgregado: serverTimestamp()
+        });
+
+        // Cambiamos el diseño del botón para confirmar visualmente
+        this.classList.add('favorited');
+        this.innerHTML = '💖 Guardado en Favoritos';
+        alert(`¡"${tituloLibro}" se guardó en tus favoritos exitosamente!`);
+
+      } catch (error) {
+        console.error("Error al guardar en favoritos:", error);
+        alert("Hubo un error al guardar tu favorito. Intenta de nuevo.");
+      }
+    });
+
+   // ==========================================
+    // 4. BUSCADOR DINÁMICO
+    // ==========================================
+    const searchInput = document.getElementById('nav-search-input');
+    const seccionCategorias = document.querySelector('.categories-filter');
+    let yaHizoScroll = false;
+
+    searchInput?.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const books = document.querySelectorAll('.shelf-book-item');
+
+      // Bajar automáticamente a la estantería al empezar a buscar
+      if (query.length > 0 && !yaHizoScroll) {
+        seccionCategorias?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        yaHizoScroll = true; // Evita que la pantalla salte con cada letra adicional
+      } else if (query.length === 0) {
+        yaHizoScroll = false; // Reinicia el scroll si el usuario borra la búsqueda
+      }
+
+      books.forEach(book => {
+        const title = book.querySelector('.book-title').innerText.toLowerCase();
+        const author = book.querySelector('.book-author').innerText.toLowerCase();
+
+        if (title.includes(query) || author.includes(query)) {
+          book.style.display = 'flex';
+        } else {
+          book.style.display = 'none';
+        }
+      });
+    });
+  </script>
+
+  <!-- MÓDULO JS DE SESIÓN Y NAVEGACIÓN GLOBAL -->
+  <script type="module" src="../js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Cuenta Lector — Biblioteca El Sabio</title>
+
+  <!-- Tipografía -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Hojas de Estilo -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/lector-styles.css">
+</head>
+<body>
+
+  <!-- BARRA DE NAVEGACIÓN -->
+  <header class="navbar">
+    <a href="index.html" class="brand-logo">
+      <img src="../assets/img/Buho Logo.png" alt="Logo Biblioteca" class="nav-owl-logo">
+      <span>Biblioteca El Sabio</span>
+    </a>
+
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html">Inicio</a></li>
+       <!-- Reemplazar en el menú de navegación de todas las páginas: -->
+<li><a href="catalogo.html">Catálogo</a></li>
+        <!-- BARRA DE BÚSQUEDA DESPLEGABLE -->
+  <div class="nav-search-box">
+    <input type="text" id="nav-search-input" placeholder="Buscar título o autor..." aria-label="Buscar libro">
+    <button type="button" class="search-btn">🔍</button>
+  </div>
+        <!-- CONTENEDOR DINÁMICO DE SESIÓN -->
+        <li id="nav-auth-container">
+          <a href="login.html" class="nav-user-btn">
+            <span class="user-icon">👤</span>
+            <span class="user-text">Mi Cuenta</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL DEL PERFIL -->
+  <main class="lector-dashboard">
+
+    <!-- HERO / BANNER DE BIENVENIDA -->
+    <section class="welcome-card">
+      <div class="user-avatar-circle">📖</div>
+      <div class="user-info">
+        <span class="badge badge-reader">Lector Frecuente</span>
+        <h1 id="user-greeting">¡Hola, Lector! 👋</h1>
+        <p>Bienvenido a tu rincón personal. Aquí puedes gestionar tus préstamos, tus libros guardados y tus próximas devoluciones.</p>
+      </div>
+    </section>
+
+    <!-- BANNER DE RECORDATORIO URGENTE (Si hay préstamos próximos a vencer) -->
+<!-- BANNER DE RECORDATORIO URGENTE (Oculto por defecto) -->
+<section class="alert-banner warning" id="alert-banner" style="display: none;">
+  <div class="alert-icon">⏰</div>
+  <div class="alert-content">
+    <h3>Recordatorio de Devolución Próxima</h3>
+    <p>Tienes libros que debes devolver pronto: <strong id="alert-book-title"></strong> (Vence el <span id="alert-book-date"></span>).</p>
+  </div>
+  <button class="btn btn-outline-warning" id="btn-renew-alert">Solicitar Prórroga</button>
+</section>
+
+    <!-- METRICAS / ESTADÍSTICAS RÁPIDAS -->
+    <section class="stats-grid">
+     
+        <div class="stat-icon">📚</div>
+        <div class="stat-data">
+          <span class="stat-number" id="count-prestamos">2</span>
+          <span class="stat-label">Préstamos Activos</span>
+        </div>
+      </div>
+
+   
+        <div class="stat-icon">⏰</div>
+        <div class="stat-data">
+          <span class="stat-number text-warning" id="count-recordatorios">1</span>
+          <span class="stat-label">Por Devolver Pronto</span>
+        </div>
+      </div>
+
+      
+        <div class="stat-icon">⭐</div>
+        <div class="stat-data">
+          <span class="stat-number" id="count-favoritos">4</span>
+          <span class="stat-label">Favoritos</span>
+        </div>
+      </div>
+
+      
+      </div>
+    </section>
+
+    <!-- NAVEGACIÓN POR PESTAÑAS (TABS) -->
+    <div class="tabs-header">
+      <button class="tab-btn active" data-tab="prestamos">📚 Préstamos y Devoluciones</button>
+      <button class="tab-btn" data-tab="favoritos">⭐ Favoritos</button>
+     
+    </div>
+
+    <!-- CONTENIDO DE LAS PESTAÑAS -->
+    <div class="tabs-content">
+
+      <!-- PESTAÑA 1: PRÉSTAMOS ACTIVOS -->
+      <section id="tab-prestamos" class="tab-pane active">
+        <div class="section-header">
+          <h2>Tus Préstamos Activos</h2>
+          <p>Supervisa las fechas límite para mantener tu historial al día.</p>
+        </div>
+
+        <div class="books-list" id="prestamos-container">
+  <div style="text-align: center; padding: 2rem; color: #666; font-style: italic;">
+    ⏳ Buscando tus préstamos activos...
+  </div>
+</div>
+      </section>
+
+      <!-- PESTAÑA 2: FAVORITOS -->
+      <section id="tab-favoritos" class="tab-pane">
+        <div class="section-header">
+          <h2>Tus Colecciones Favoritas</h2>
+          <p>Libros que has marcado con estrella para consultar cuando quieras.</p>
+        </div>
+
+      <div class="books-grid" id="favoritos-container">
+  <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666; font-style: italic;">
+    ⏳ Cargando tus favoritos...
+  </div>
+</div>
+      </section>
+
+     
+
+    </div>
+  </main>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h3>🦉 Biblioteca El Sabio</h3>
+          <p>Cultivando la lectura y el aprendizaje en un espacio sereno.</p>
+        </div>
+        <div class="footer-info">
+          <p><strong>Horario:</strong> Lunes a Viernes 08:00 - 18:00 hs</p>
+          <p>© 2026 Biblioteca El Sabio — Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </footer>
+<!-- LÓGICA FIREBASE PARA FAVORITOS -->
+<!-- LÓGICA FIREBASE PARA PERFIL (PRÉSTAMOS Y FAVORITOS) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+  import { getFirestore, collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC8Fcb60NXBVnfoIqYy903loTapqrVWc4g",
+    authDomain: "mi-biblioteca-web-47e11.firebaseapp.com",
+    projectId: "mi-biblioteca-web-47e11",
+    storageBucket: "mi-biblioteca-web-47e11.firebasestorage.app",
+    messagingSenderId: "152963035735",
+    appId: "1:152963035735:web:203b25f135e75f5f8ae912",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  const favContainer = document.getElementById("favoritos-container");
+  const countFavoritos = document.getElementById("count-favoritos");
+  const prestamosContainer = document.getElementById("prestamos-container");
+  const countPrestamos = document.getElementById("count-prestamos");
+  const userGreeting = document.getElementById("user-greeting");
+
+  // Escuchar si hay un usuario logueado
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // Personalizar saludo
+      userGreeting.innerText = `¡Hola, ${user.email.split('@')[0]}! 👋`;
+      // Cargar bases de datos
+      cargarFavoritos(user.email);
+      cargarPrestamos(user.uid); 
+    } else {
+      favContainer.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Inicia sesión para ver tus favoritos.</p>';
+      prestamosContainer.innerHTML = '<p style="text-align:center;">Inicia sesión para ver tus préstamos.</p>';
+      countFavoritos.innerText = "0";
+      countPrestamos.innerText = "0";
+    }
+  });
+
+  // ==========================================
+  // CARGAR PRÉSTAMOS Y ESTADÍSTICAS
+  // ==========================================
+  async function cargarPrestamos(uid) {
+    const alertBanner = document.getElementById("alert-banner");
+    const alertBookTitle = document.getElementById("alert-book-title");
+    const alertBookDate = document.getElementById("alert-book-date");
+    const countRecordatorios = document.getElementById("count-recordatorios");
+
+    try {
+      const q = query(collection(db, "prestamos"), where("usuarioUid", "==", uid));
+      const querySnapshot = await getDocs(q);
+
+      prestamosContainer.innerHTML = "";
+      let total = 0;
+      let porDevolver = 0;
+      let primerLibroUrgente = null;
+      let fechaUrgente = null;
+
+      alertBanner.style.display = "none"; // Ocultar alerta por defecto
+
+      if (querySnapshot.empty) {
+        prestamosContainer.innerHTML = '<p style="text-align:center;">No tienes préstamos solicitados ni activos.</p>';
+        countPrestamos.innerText = "0";
+        countRecordatorios.innerText = "0";
+        return;
+      }
+
+      querySnapshot.forEach((docSnap) => {
+        total++;
+        const prestamo = docSnap.data();
+        let fechaSoli = prestamo.fechaSolicitud ? new Date(prestamo.fechaSolicitud.toDate()).toLocaleDateString() : 'Desconocida';
+        let estadoBadge = prestamo.estado === "pendiente" ? "badge-warning" : "badge-success";
+
+        // Calcular si está por vencer (Ej: menos de 3 días)
+        if (prestamo.fechaDevolucion) {
+          const hoy = new Date();
+          const devolucion = new Date(prestamo.fechaDevolucion.toDate());
+          const diasRestantes = Math.floor((devolucion - hoy) / (1000 * 60 * 60 * 24));
+
+          if (diasRestantes >= 0 && diasRestantes <= 3) {
+            porDevolver++;
+            if (!primerLibroUrgente) { // Guardar el primero para la alerta visual
+              primerLibroUrgente = prestamo.libroTitulo;
+              fechaUrgente = devolucion.toLocaleDateString();
+            }
+          }
+        }
+
+        const prestamoCard = document.createElement("article");
+        prestamoCard.className = "book-card-horizontal";
+        prestamoCard.innerHTML = `
+          <div class="book-cover-placeholder">📖</div>
+          <div class="book-details">
+            <span class="badge ${estadoBadge}">Estado: ${prestamo.estado.toUpperCase()}</span>
+            <h3>${prestamo.libroTitulo}</h3>
+            <div class="loan-dates">
+              <span><strong>Solicitado el:</strong> ${fechaSoli}</span>
+              ${prestamo.fechaDevolucion ? `<span><strong>Devolución:</strong> ${new Date(prestamo.fechaDevolucion.toDate()).toLocaleDateString()}</span>` : ''}
+            </div>
+          </div>
+        `;
+        prestamosContainer.appendChild(prestamoCard);
+      });
+
+      // Actualizar contadores y cartel
+      countPrestamos.innerText = total;
+      countRecordatorios.innerText = porDevolver;
+
+      if (porDevolver > 0) {
+        alertBanner.style.display = "flex"; 
+        alertBookTitle.innerText = `"${primerLibroUrgente}"`;
+        alertBookDate.innerText = fechaUrgente;
+      }
+
+    } catch (error) {
+      console.error("Error al cargar préstamos:", error);
+      prestamosContainer.innerHTML = '<p style="text-align:center;">Error al cargar datos.</p>';
+    }
+  }
+
+  // ==========================================
+  // CARGAR FAVORITOS
+  // ==========================================
+  async function cargarFavoritos(email) {
+    try {
+      const q = query(collection(db, "favoritos"), where("usuarioEmail", "==", email));
+      const querySnapshot = await getDocs(q);
+
+      favContainer.innerHTML = "";
+      let total = 0;
+
+      if (querySnapshot.empty) {
+        favContainer.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Aún no has agregado libros a tus favoritos.</p>';
+        countFavoritos.innerText = "0";
+        return;
+      }
+
+      querySnapshot.forEach((docSnap) => {
+        total++;
+        const fav = docSnap.data();
+        const id = docSnap.id;
+
+        const favCard = document.createElement("div");
+        favCard.className = "grid-book-card";
+        favCard.innerHTML = `
+          <button class="btn-remove-fav" data-id="${id}" title="Quitar de favoritos">✖</button>
+          <div class="card-cover">📘</div>
+          <h4>${fav.titulo}</h4>
+          <p class="author">${fav.autor}</p>
+        `;
+        favContainer.appendChild(favCard);
+      });
+
+      countFavoritos.innerText = total;
+      asignarEventosBorrar();
+
+    } catch (error) {
+      console.error("Error al cargar favoritos:", error);
+      favContainer.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Error al cargar datos.</p>';
+    }
+  }
+
+  function asignarEventosBorrar() {
+    document.querySelectorAll(".btn-remove-fav").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const id = e.target.getAttribute("data-id");
+        if (confirm("¿Deseas quitar este libro de tus favoritos?")) {
+          await deleteDoc(doc(db, "favoritos", id));
+          cargarFavoritos(auth.currentUser.email);
+        }
+      });
+    });
+  }
+</script>
+  <!-- LÓGICA DE INTERACTIVIDAD PESTAÑAS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const tabPanes = document.querySelectorAll('.tab-pane');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetTab = btn.getAttribute('data-tab');
+
+          tabBtns.forEach(b => b.classList.remove('active'));
+          tabPanes.forEach(p => p.classList.remove('active'));
+
+          btn.classList.add('active');
+          document.getElementById(`tab-${targetTab}`).classList.add('active');
+        });
+      });
+    });
+  </script>
+
+  <!-- JS DE NAVEGACIÓN Y SESIÓN (FIREBASE) -->
+  <script type="module" src="../js/app.js"></script>
+</body>
+</html>

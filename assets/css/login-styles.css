@@ -1,0 +1,227 @@
+/* ======================================================
+   ESTILOS SPLIT-SCREEN — PANTALLA DE LOGIN
+   ====================================================== */
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--color-bg-light);
+}
+
+.login-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* PANEL IZQUIERDO CON ILUSTRACIÓN */
+.login-left-panel {
+  flex: 1.1;
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 70%, #173f4e 100%);
+  color: #ffffff;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.login-left-panel::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.back-link {
+  color: #d1e4ec;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  z-index: 2;
+  transition: color 0.3s ease;
+  width: fit-content;
+}
+
+.back-link:hover {
+  color: #ffffff;
+}
+
+.brand-hero {
+  z-index: 2;
+  max-width: 440px;
+  margin: auto auto;
+  text-align: center;
+}
+
+.hero-owl-img {
+  width: 210px;
+  height: auto;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 12px 25px rgba(0, 0, 0, 0.25));
+  animation: float 4s ease-in-out infinite;
+}
+
+.brand-hero h2 {
+  font-family: var(--font-heading);
+  font-size: 2.4rem;
+  margin-bottom: 0.8rem;
+  color: #ffffff;
+}
+
+.brand-hero h2 span {
+  color: #8ed0e0;
+}
+
+.brand-hero p {
+  color: #c0d7e2;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.panel-footer p {
+  font-size: 0.85rem;
+  color: #82a3b3;
+  z-index: 2;
+  position: relative;
+}
+
+/* PANEL DERECHO CON FORMULARIO */
+.login-right-panel {
+  flex: 0.9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+}
+
+.login-card {
+  background-color: var(--color-card-bg);
+  padding: 3rem 2.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-soft);
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid #e1e9ed;
+}
+
+.login-header {
+  margin-bottom: 2rem;
+}
+
+.login-header h2 {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: var(--color-primary-dark);
+  margin-top: 0.5rem;
+}
+
+.login-header p {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.login-card .input-group {
+  margin-bottom: 1.2rem;
+}
+
+.login-card .input-group select {
+  padding: 12px 16px;
+  border: 2px solid #dce5e9;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  background-color: #ffffff;
+}
+
+.btn-full {
+  width: 100%;
+  margin-top: 0.8rem;
+  padding: 14px;
+}
+
+.toggle-mode {
+  margin-top: 2rem;
+  text-align: center;
+  border-top: 1px solid #edf2f5;
+  padding-top: 1.5rem;
+}
+
+.toggle-mode p {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-link:hover {
+  color: var(--color-primary-dark);
+}
+
+/* ADAPTACIÓN MÓVIL */
+@media (max-width: 900px) {
+  .login-wrapper {
+    flex-direction: column;
+  }
+  .login-left-panel {
+    padding: 2rem;
+    min-height: 220px;
+  }
+  .hero-owl-img {
+    width: 110px;
+    margin-bottom: 0.5rem;
+  }
+  .brand-hero h2 {
+    font-size: 1.8rem;
+  }
+  .brand-hero p, .panel-footer {
+    display: none;
+  }
+  .login-right-panel {
+    padding: 1.5rem;
+  }
+}
+/* CONTENEDOR DE CONTRASEÑA CON OJO */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 45px; /* Espacio para que el texto no tape el ojo */
+}
+
+.btn-toggle-password {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  user-select: none;
+}
+
+.btn-toggle-password:hover {
+  transform: scale(1.15);
+  opacity: 0.8;
+}
