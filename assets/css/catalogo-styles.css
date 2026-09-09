@@ -366,3 +366,19 @@
   background-color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
+/* Estado vacío del buscador */
+.search-empty-state {
+  width: 100%;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #f4f4f4;
+}
+
+.search-empty-state p {
+  margin: 0.25rem 0;
+}
+
+.search-empty-hint {
+  font-size: 0.9rem;
+  opacity: 0.75;
+}

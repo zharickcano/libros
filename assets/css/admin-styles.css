@@ -268,3 +268,15 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Pantalla de verificación de acceso al panel admin */
+.admin-guard-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  font-size: 1.1rem;
+  color: #666;
+  text-align: center;
+  padding: 2rem;
+}

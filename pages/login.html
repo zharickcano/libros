@@ -83,14 +83,10 @@
               </div>
             </div>
 
-        <!-- GRUPO TIPO DE CUENTA (Oculto en inicio de sesión) -->
-<div class="input-group" id="grupo-tipo-cuenta" style="display: none;">
-  <label for="tipo-cuenta">Registrarse como</label>
-  <select id="tipo-cuenta">
-    <option value="lector">📖 Lector</option>
-    <option value="admin">🔐 Administrador</option>
-  </select>
-</div>
+        <!-- Nota: se eliminó el selector de "Administrador" del registro público.
+             Por seguridad, el rol admin debe asignarse manualmente en Firestore
+             (colección "usuarios", campo "rol") y nunca ser elegible por el propio usuario. -->
+        <input type="hidden" id="tipo-cuenta" value="lector" />
             <button
               type="submit"
               id="btn-auth"
@@ -99,6 +95,12 @@
               Ingresar a mi Cuenta
             </button>
           </form>
+
+          <div class="forgot-password-wrap" id="forgot-password-wrap">
+            <button type="button" id="btn-forgot-password" class="btn-link">
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
 
           <div class="toggle-mode">
             <p id="toggle-text">¿No tienes una cuenta aún?</p>
@@ -116,7 +118,8 @@
   import { 
     getAuth, 
     signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword 
+    createUserWithEmailAndPassword,
+    sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
   import { 
     getFirestore, 
@@ -145,13 +148,14 @@
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
   const tipoCuentaSelect = document.getElementById('tipo-cuenta');
-  const grupoTipoCuenta = document.getElementById('grupo-tipo-cuenta');
   const loginTitle = document.getElementById('login-title');
   const loginSubtitle = document.getElementById('login-subtitle');
   const btnAuth = document.getElementById('btn-auth');
   const btnToggle = document.getElementById('btn-toggle');
   const toggleText = document.getElementById('toggle-text');
   const togglePasswordBtn = document.getElementById('toggle-password');
+  const forgotPasswordWrap = document.getElementById('forgot-password-wrap');
+  const btnForgotPassword = document.getElementById('btn-forgot-password');
 
   // Alternar vista entre Iniciar Sesión y Crear Cuenta
   btnToggle.addEventListener('click', () => {
@@ -162,14 +166,14 @@
       btnAuth.innerText = "Ingresar a mi Cuenta";
       toggleText.innerText = "¿No tienes una cuenta aún?";
       btnToggle.innerText = "Crear una cuenta nueva";
-      grupoTipoCuenta.style.display = "none"; // Ocultar rol en login
+      forgotPasswordWrap.style.display = "block";
     } else {
       loginTitle.innerText = "Crear Cuenta";
       loginSubtitle.innerText = "Regístrate para solicitar libros en la biblioteca";
       btnAuth.innerText = "Registrarse";
       toggleText.innerText = "¿Ya tienes una cuenta?";
       btnToggle.innerText = "Iniciar Sesión";
-      grupoTipoCuenta.style.display = "block"; // Mostrar rol en registro
+      forgotPasswordWrap.style.display = "none";
     }
   });
 
@@ -232,6 +236,23 @@
     } catch (error) {
       console.error("Error en autenticación:", error);
       alert("Ocurrió un error: " + error.message);
+    }
+  });
+
+  // Recuperar contraseña
+  btnForgotPassword.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    if (!email) {
+      alert("Escribe tu correo electrónico en el campo de arriba y vuelve a intentarlo.");
+      emailInput.focus();
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert(`Te enviamos un correo a ${email} con instrucciones para restablecer tu contraseña.`);
+    } catch (error) {
+      console.error("Error al enviar correo de recuperación:", error);
+      alert("No pudimos enviar el correo de recuperación: " + error.message);
     }
   });
 </script>

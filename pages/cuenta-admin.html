@@ -46,7 +46,12 @@
       </nav>
     </header>
 
-    <main class="admin-container">
+    <!-- Pantalla de verificación de acceso (se oculta si el usuario es admin) -->
+    <div id="admin-guard-screen" class="admin-guard-screen">
+      <p>🔐 Verificando permisos de acceso...</p>
+    </div>
+
+    <main class="admin-container" id="admin-main" style="display: none;">
       <!-- PANEL DE BIENVENIDA -->
       <section class="admin-header-banner">
         <div>
@@ -241,10 +246,60 @@
       </section>
     </main>
 
+    <!-- GUARDIA DE ACCESO: solo usuarios con rol "admin" pueden ver este panel -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+      const firebaseConfigGuard = {
+        apiKey: "AIzaSyC8Fcb60NXBVnfoIqYy903loTapqrVWc4g",
+        authDomain: "mi-biblioteca-web-47e11.firebaseapp.com",
+        projectId: "mi-biblioteca-web-47e11",
+        storageBucket: "mi-biblioteca-web-47e11.firebasestorage.app",
+        messagingSenderId: "152963035735",
+        appId: "1:152963035735:web:203b25f135e75f5f8ae912",
+      };
+
+      const guardApp = initializeApp(firebaseConfigGuard);
+      const guardAuth = getAuth(guardApp);
+      const guardDb = getFirestore(guardApp);
+
+      const guardScreen = document.getElementById("admin-guard-screen");
+      const adminMain = document.getElementById("admin-main");
+
+      onAuthStateChanged(guardAuth, async (user) => {
+        if (!user) {
+          // Nadie logueado: fuera del panel
+          window.location.href = "login.html";
+          return;
+        }
+
+        try {
+          const userDoc = await getDoc(doc(guardDb, "usuarios", user.uid));
+          const rol = userDoc.exists() ? userDoc.data().rol : "lector";
+
+          if (rol !== "admin") {
+            // Logueado pero no es admin: fuera del panel
+            alert("No tienes permisos para acceder al Panel de Administración.");
+            window.location.href = "cuenta-lector.html";
+            return;
+          }
+
+          // Es admin: mostrar el panel
+          guardScreen.style.display = "none";
+          adminMain.style.display = "block";
+        } catch (error) {
+          console.error("Error verificando permisos:", error);
+          window.location.href = "login.html";
+        }
+      });
+    </script>
+
     <!-- LÓGICA FIREBASE ADMIN (CRUD COMPLETO) -->
     <!-- LÓGICA FIREBASE ADMIN (CRUD COMPLETO) -->
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+      import { getApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
       import {
         getFirestore,
         collection,
@@ -260,16 +315,10 @@
         increment,
       } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyC8Fcb60NXBVnfoIqYy903loTapqrVWc4g",
-        authDomain: "mi-biblioteca-web-47e11.firebaseapp.com",
-        projectId: "mi-biblioteca-web-47e11",
-        storageBucket: "mi-biblioteca-web-47e11.firebasestorage.app",
-        messagingSenderId: "152963035735",
-        appId: "1:152963035735:web:203b25f135e75f5f8ae912",
-      };
-
-      const app = initializeApp(firebaseConfig);
+      // Reutiliza la misma app que ya inicializó el script de verificación de arriba
+      // (evita el error "Firebase App named '[DEFAULT]' already exists" y mantiene
+      // la sesión de autenticación compartida entre ambos scripts)
+      const app = getApp();
       const db = getFirestore(app);
 
       // 1. SELECTORES DEL INVENTARIO

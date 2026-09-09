@@ -31,7 +31,7 @@
         <!-- BARRA DE BÚSQUEDA DESPLEGABLE -->
   <div class="nav-search-box">
     <input type="text" id="nav-search-input" placeholder="Buscar título o autor..." aria-label="Buscar libro">
-    <button type="button" class="search-btn">🔍</button>
+    <button type="button" class="search-btn" aria-label="Buscar">🔍</button>
   </div>
         <!-- CONTENEDOR DINÁMICO DE SESIÓN -->
         <li id="nav-auth-container">
@@ -65,7 +65,7 @@
     <h3>Recordatorio de Devolución Próxima</h3>
     <p>Tienes libros que debes devolver pronto: <strong id="alert-book-title"></strong> (Vence el <span id="alert-book-date"></span>).</p>
   </div>
-  <button class="btn btn-outline-warning" id="btn-renew-alert">Solicitar Prórroga</button>
+  <button class="btn btn-outline-warning" id="btn-renew-alert" data-prestamo-id="">Solicitar Prórroga</button>
 </section>
 
     <!-- METRICAS / ESTADÍSTICAS RÁPIDAS -->
@@ -158,7 +158,7 @@
 <!-- LÓGICA FIREBASE PARA PERFIL (PRÉSTAMOS Y FAVORITOS) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-  import { getFirestore, collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+  import { getFirestore, collection, query, where, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -224,6 +224,8 @@
         return;
       }
 
+      let idPrestamoUrgente = null;
+
       querySnapshot.forEach((docSnap) => {
         total++;
         const prestamo = docSnap.data();
@@ -241,6 +243,7 @@
             if (!primerLibroUrgente) { // Guardar el primero para la alerta visual
               primerLibroUrgente = prestamo.libroTitulo;
               fechaUrgente = devolucion.toLocaleDateString();
+              idPrestamoUrgente = docSnap.id;
             }
           }
         }
@@ -269,6 +272,11 @@
         alertBanner.style.display = "flex"; 
         alertBookTitle.innerText = `"${primerLibroUrgente}"`;
         alertBookDate.innerText = fechaUrgente;
+
+        const btnRenew = document.getElementById('btn-renew-alert');
+        btnRenew.dataset.prestamoId = idPrestamoUrgente;
+        btnRenew.disabled = false;
+        btnRenew.innerText = "Solicitar Prórroga";
       }
 
     } catch (error) {
@@ -276,6 +284,30 @@
       prestamosContainer.innerHTML = '<p style="text-align:center;">Error al cargar datos.</p>';
     }
   }
+
+  // ==========================================
+  // SOLICITAR PRÓRROGA (extensión de 7 días)
+  // ==========================================
+  document.getElementById('btn-renew-alert')?.addEventListener('click', async function () {
+    const idPrestamo = this.dataset.prestamoId;
+    if (!idPrestamo) return;
+
+    if (!confirm("¿Quieres solicitar una prórroga de 7 días para este préstamo? Un administrador debe aprobarla.")) {
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, "prestamos", idPrestamo), {
+        prorrogaSolicitada: true
+      });
+      this.disabled = true;
+      this.innerText = "✅ Prórroga solicitada";
+      alert("Tu solicitud de prórroga fue enviada. Un administrador la revisará pronto.");
+    } catch (error) {
+      console.error("Error al solicitar prórroga:", error);
+      alert("Hubo un error al solicitar la prórroga. Intenta de nuevo.");
+    }
+  });
 
   // ==========================================
   // CARGAR FAVORITOS

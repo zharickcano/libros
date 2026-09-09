@@ -29,7 +29,7 @@
         <li><a href="catalogo.html" class="active">Catálogo</a></li>
         <div class="nav-search-box">
     <input type="text" id="nav-search-input" placeholder="Buscar título o autor..." aria-label="Buscar libro">
-    <button type="button" class="search-btn">🔍</button>
+    <button type="button" class="search-btn" aria-label="Buscar">🔍</button>
   </div>
         
         <!-- CONTENEDOR DINÁMICO DE SESIÓN -->
@@ -88,6 +88,11 @@
       <div class="shelf-row" id="shelf-container">
 
       </div>
+      <!-- Estado vacío cuando la búsqueda no encuentra coincidencias -->
+      <div id="search-empty-state" class="search-empty-state" style="display: none;">
+        <p>🔎 No encontramos libros que coincidan con tu búsqueda.</p>
+        <p class="search-empty-hint">Prueba con otro título, autor, o revisa la ortografía.</p>
+      </div>
     </section>
   </main>
 
@@ -95,7 +100,7 @@
  <!-- MODAL CON EL BOTÓN FALTANTE -->
   <div class="modal-overlay" id="book-modal">
     <div class="modal-content">
-      <button class="modal-close" onclick="closeBookModal()">✖</button>
+      <button class="modal-close" onclick="closeBookModal()" aria-label="Cerrar ventana de detalles">✖</button>
       
       <div class="modal-body">
         <div class="modal-cover-box" id="modal-cover">📖</div>
@@ -400,16 +405,25 @@
         yaHizoScroll = false; // Reinicia el scroll si el usuario borra la búsqueda
       }
 
+      let coincidencias = 0;
+
       books.forEach(book => {
         const title = book.querySelector('.book-title').innerText.toLowerCase();
         const author = book.querySelector('.book-author').innerText.toLowerCase();
 
         if (title.includes(query) || author.includes(query)) {
           book.style.display = 'flex';
+          coincidencias++;
         } else {
           book.style.display = 'none';
         }
       });
+
+      // Mostrar mensaje de "sin resultados" si no hay coincidencias
+      const emptyState = document.getElementById('search-empty-state');
+      if (emptyState) {
+        emptyState.style.display = (query.length > 0 && coincidencias === 0) ? 'block' : 'none';
+      }
     });
   </script>
 

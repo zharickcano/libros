@@ -225,3 +225,12 @@ body {
   transform: scale(1.15);
   opacity: 0.8;
 }
+.forgot-password-wrap {
+  text-align: right;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+}
+
+.forgot-password-wrap .btn-link {
+  font-size: 0.85rem;
+}
