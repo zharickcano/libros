@@ -544,3 +544,20 @@ body {
 .nav-search-box:hover .search-btn {
   color: var(--color-primary, #1e3a8a);
 }
+
+/* ENLACE DE AYUDA EN EL FOOTER */
+.footer-help-link {
+  display: inline-block;
+  margin: 4px 0 8px 0;
+  color: #38bdf8; /* Azul claro / celeste */
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-help-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  transform: translateX(2px);
+}
