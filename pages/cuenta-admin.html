@@ -151,11 +151,16 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="libro-estado">Estado *</label>
-              <select id="libro-estado" required>
-                <option value="Disponible">Disponible</option>
-                <option value="Prestado">Prestado</option>
-              </select>
+              <label for="libro-cantidad">Cantidad de Copias Disponibles *</label>
+              <input
+                type="number"
+                id="libro-cantidad"
+                min="0"
+                value="1"
+                placeholder="Ej. 3"
+                required
+              />
+              <small class="field-hint">Cada préstamo aprobado resta 1. Al llegar a 0, el libro se marca como "Prestado" automáticamente.</small>
             </div>
 
             <div class="form-group">
@@ -232,13 +237,14 @@
               <tr>
                 <th>Título</th>
                 <th>Autor</th>
+                <th>Copias</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody id="tabla-libros">
               <tr>
-                <td colspan="4" class="text-center">Cargando inventario...</td>
+                <td colspan="5" class="text-center">Cargando inventario...</td>
               </tr>
             </tbody>
           </table>
@@ -328,7 +334,7 @@
       const inputAutor = document.getElementById("libro-autor");
       const selectCategoria = document.getElementById("libro-categoria");
       const selectColor = document.getElementById("libro-color");
-      const selectEstado = document.getElementById("libro-estado");
+      const inputCantidad = document.getElementById("libro-cantidad");
       const inputPrestamos = document.getElementById("libro-prestamos");
       const inputDescripcion = document.getElementById("libro-descripcion");
 
@@ -429,6 +435,30 @@
 
             if (confirm(`¿Aprobar préstamo de "${tituloLibro}" por 14 días?`)) {
               try {
+                // Buscar el libro primero para validar que haya copias disponibles
+                const q = query(
+                  collection(db, "libros"),
+                  where("titulo", "==", tituloLibro),
+                );
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                  alert("No se encontró el libro en el inventario.");
+                  return;
+                }
+
+                const libroDoc = querySnapshot.docs[0];
+                const libroData = libroDoc.data();
+                const cantidadActual =
+                  libroData.cantidad !== undefined
+                    ? libroData.cantidad
+                    : (libroData.disponible ? 1 : 0);
+
+                if (cantidadActual <= 0) {
+                  alert(`No quedan copias disponibles de "${tituloLibro}". No se puede aprobar el préstamo.`);
+                  return;
+                }
+
                 const fechaDev = new Date();
                 fechaDev.setDate(fechaDev.getDate() + 14);
 
@@ -438,20 +468,15 @@
                   fechaDevolucion: fechaDev,
                 });
 
-                // Pasar libro a "Prestado" en el inventario
-                const q = query(
-                  collection(db, "libros"),
-                  where("titulo", "==", tituloLibro),
-                );
-                const querySnapshot = await getDocs(q);
-                if (!querySnapshot.empty) {
-                  const libroDoc = querySnapshot.docs[0];
-                  await updateDoc(doc(db, "libros", libroDoc.id), {
-                    estado: "Prestado",
-                    disponible: false,
-                    prestamosSemanales: increment(1)
-                  });
-                }
+                // Descontar una copia disponible del inventario
+                const cantidadNueva = cantidadActual - 1;
+                await updateDoc(doc(db, "libros", libroDoc.id), {
+                  cantidad: cantidadNueva,
+                  estado: cantidadNueva > 0 ? "Disponible" : "Prestado",
+                  disponible: cantidadNueva > 0,
+                  prestamosSemanales: increment(1)
+                });
+
                 alert("Préstamo aprobado.");
                 cargarSolicitudes();
                 cargarInventario();
@@ -477,7 +502,7 @@
                 // Eliminar el préstamo (o cambiar a estado "devuelto")
                 await deleteDoc(doc(db, "prestamos", idPrestamo));
 
-                // Volver a poner el libro "Disponible" en el inventario
+                // Devolver una copia al inventario (nunca queda en negativo)
                 const q = query(
                   collection(db, "libros"),
                   where("titulo", "==", tituloLibro),
@@ -485,7 +510,13 @@
                 const querySnapshot = await getDocs(q);
                 if (!querySnapshot.empty) {
                   const libroDoc = querySnapshot.docs[0];
+                  const libroData = libroDoc.data();
+                  const cantidadActual =
+                    libroData.cantidad !== undefined ? libroData.cantidad : 0;
+                  const cantidadNueva = cantidadActual + 1;
+
                   await updateDoc(doc(db, "libros", libroDoc.id), {
+                    cantidad: cantidadNueva,
                     estado: "Disponible",
                     disponible: true,
                   });
@@ -537,7 +568,7 @@
 
           if (querySnapshot.empty) {
             tablaLibros.innerHTML =
-              '<tr><td colspan="4" class="text-center">No hay libros registrados.</td></tr>';
+              '<tr><td colspan="5" class="text-center">No hay libros registrados.</td></tr>';
             statTotal.innerText = "0";
             statDisponibles.innerText = "0";
             return;
@@ -547,8 +578,11 @@
             total++;
             const libro = documento.data();
             const id = documento.id;
-            const esDisponible =
-              libro.estado === "Disponible" || libro.disponible === true;
+            const cantidad =
+              libro.cantidad !== undefined
+                ? libro.cantidad
+                : (libro.disponible ? 1 : 0);
+            const esDisponible = cantidad > 0;
 
             if (esDisponible) disponibles++;
 
@@ -556,6 +590,7 @@
             fila.innerHTML = `
           <td><strong>${libro.titulo}</strong></td>
           <td>${libro.autor}</td>
+          <td>${cantidad}</td>
           <td>
             <span class="status-pill ${esDisponible ? "status-ok" : "status-off"}">
               ${esDisponible ? "Disponible" : "Prestado"}
@@ -580,11 +615,13 @@
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const id = inputId.value;
+        const cantidad = Math.max(0, parseInt(inputCantidad.value) || 0);
         const data = {
           titulo: inputTitulo.value.trim(),
           autor: inputAutor.value.trim(),
-          estado: selectEstado.value,
-          disponible: selectEstado.value === "Disponible",
+          cantidad: cantidad,
+          estado: cantidad > 0 ? "Disponible" : "Prestado",
+          disponible: cantidad > 0,
           categoria: selectCategoria.value,
           color: selectColor.value,
           prestamosSemanales: parseInt(inputPrestamos.value) || 0,
@@ -619,8 +656,10 @@
               inputId.value = id;
               inputTitulo.value = libro.titulo || "";
               inputAutor.value = libro.autor || "";
-              selectEstado.value =
-                libro.estado || (libro.disponible ? "Disponible" : "Prestado");
+              inputCantidad.value =
+                libro.cantidad !== undefined
+                  ? libro.cantidad
+                  : (libro.disponible ? 1 : 0);
               selectCategoria.value = libro.categoria || "";
               selectColor.value = libro.color || "book-red";
               inputPrestamos.value = libro.prestamosSemanales || 0;

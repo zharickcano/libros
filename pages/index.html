@@ -15,6 +15,7 @@
 
     <!-- Estilos -->
     <link rel="stylesheet" href="../assets/css/styles.css" />
+    <link rel="stylesheet" href="../assets/css/catalogo-styles.css" />
   </head>
   <body>
     <!-- ENCABEZADO Y NAVEGACIÓN -->
@@ -37,7 +38,7 @@
     <!-- BARRA DE BÚSQUEDA DESPLEGABLE -->
   <div class="nav-search-box">
     <input type="text" id="nav-search-input" placeholder="Buscar título o autor..." aria-label="Buscar libro">
-    <button type="button" class="search-btn">🔍</button>
+    <button type="button" class="search-btn" aria-label="Buscar">🔍</button>
   </div>
     <!-- CONTENEDOR DINÁMICO DE SESIÓN -->
     <li id="nav-auth-container">
@@ -85,6 +86,79 @@
       </section>
     </main>
 
+    <!-- MODAL / VENTANA EMERGENTE DE DETALLES DEL LIBRO (igual que en Catálogo) -->
+    <div class="modal-overlay" id="book-modal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeBookModal()" aria-label="Cerrar ventana de detalles">✖</button>
+
+        <div class="modal-body">
+          <div class="modal-cover-box" id="modal-cover">📖</div>
+
+          <div class="modal-details">
+            <span class="badge" id="modal-category">Categoría</span>
+            <h2 id="modal-title">Título del Libro</h2>
+            <p class="modal-author" id="modal-author">Autor</p>
+
+            <div class="modal-meta">
+              <span>⭐ Valoración: <strong id="modal-rating">5/5</strong></span>
+              <span>📌 Estado: <strong id="modal-status">Disponible</strong></span>
+            </div>
+
+            <div class="modal-description">
+              <h4>Sinopsis / Descripción</h4>
+              <p id="modal-description-text">Cargando sinopsis del libro...</p>
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn btn-primary" id="btn-modal-borrow">📖 Solicitar Préstamo</button>
+              <button class="btn btn-favorite" id="btn-modal-favorite">❤️ Guardar en Favoritos</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funciones globales del modal (compartidas, no-módulo, para usarlas desde onclick) -->
+    <script>
+      function openBookModal(title, author, category, description, rating, status, copias) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-author').innerText = 'Por ' + author;
+        document.getElementById('modal-category').innerText = category;
+        document.getElementById('modal-description-text').innerText = description;
+        document.getElementById('modal-rating').innerText = rating;
+
+        const estadoTexto = (status === 'Disponible' && typeof copias === 'number')
+          ? `Disponible (${copias} ${copias === 1 ? 'copia' : 'copias'})`
+          : status;
+        document.getElementById('modal-status').innerText = estadoTexto;
+
+        const btnBorrow = document.getElementById('btn-modal-borrow');
+        if (status === 'Prestado') {
+          btnBorrow.innerText = '🔒 No Disponible Actualmente';
+          btnBorrow.disabled = true;
+          btnBorrow.style.opacity = '0.6';
+        } else {
+          btnBorrow.innerText = '📖 Solicitar Préstamo';
+          btnBorrow.disabled = false;
+          btnBorrow.style.opacity = '1';
+        }
+
+        document.getElementById('book-modal').classList.add('active');
+      }
+
+      function closeBookModal() {
+        document.getElementById('book-modal').classList.remove('active');
+      }
+
+      window.openBookModal = openBookModal;
+      window.closeBookModal = closeBookModal;
+
+      window.addEventListener('click', (e) => {
+        const modal = document.getElementById('book-modal');
+        if (e.target === modal) closeBookModal();
+      });
+    </script>
+
     <!-- PIE DE PÁGINA -->
     <footer class="footer">
       <div class="footer-content">
@@ -106,7 +180,10 @@
         getFirestore,
         collection,
         getDocs,
+        addDoc,
+        serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+      import { getAuth } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyC8Fcb60NXBVnfoIqYy903loTapqrVWc4g",
@@ -119,6 +196,7 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
+      const auth = getAuth(app);
 
       const listaLibros = document.getElementById("lista-libros");
 
@@ -135,20 +213,38 @@
 
           querySnapshot.forEach((doc) => {
             const libro = doc.data();
-            const disponible = libro.disponible !== false;
+            const cantidad =
+              libro.cantidad !== undefined
+                ? libro.cantidad
+                : (libro.disponible !== false ? 1 : 0);
+            const disponible = cantidad > 0;
 
             const card = document.createElement("article");
             card.className = "book-card";
+            card.style.cursor = "pointer";
             card.innerHTML = `
             <div class="book-cover-placeholder">📖</div>
             <div class="book-info">
               <h3 class="book-title">${libro.titulo}</h3>
               <p class="book-author">Por <span>${libro.autor}</span></p>
               <span class="book-status ${disponible ? "" : "status-borrowed"}">
-                ${disponible ? "Disponible" : "Prestado"}
+                ${disponible ? `Disponible${cantidad ? ` (${cantidad})` : ""}` : "Prestado"}
               </span>
             </div>
           `;
+
+            // Al hacer clic, se abre el mismo modal de detalles que en el Catálogo
+            card.addEventListener("click", () => {
+              window.openBookModal(
+                libro.titulo,
+                libro.autor,
+                libro.categoria || "General",
+                libro.descripcion || "Sin descripción disponible.",
+                "N/A",
+                disponible ? "Disponible" : "Prestado",
+                cantidad
+              );
+            });
 
             listaLibros.appendChild(card);
           });
@@ -160,6 +256,78 @@
       }
 
       cargarLibros();
+
+      // ==========================================
+      // SOLICITUD DE PRÉSTAMO DESDE EL MODAL
+      // ==========================================
+      document.getElementById('btn-modal-borrow')?.addEventListener('click', async () => {
+        const user = auth.currentUser;
+
+        if (!user) {
+          alert("Debes iniciar sesión para solicitar un préstamo.");
+          window.location.href = "login.html";
+          return;
+        }
+
+        const tituloLibro = document.getElementById('modal-title').innerText;
+
+        try {
+          await addDoc(collection(db, "prestamos"), {
+            usuarioUid: user.uid,
+            usuarioEmail: user.email,
+            libroTitulo: tituloLibro,
+            estado: "pendiente",
+            fechaSolicitud: serverTimestamp(),
+            fechaDevolucion: null
+          });
+
+          alert(`¡Solicitud enviada con éxito para "${tituloLibro}"! Un administrador la revisará pronto.`);
+          window.closeBookModal();
+
+        } catch (error) {
+          console.error("Error al enviar solicitud:", error);
+          alert("Hubo un error al procesar tu solicitud.");
+        }
+      });
+
+      // ==========================================
+      // FAVORITOS DESDE EL MODAL
+      // ==========================================
+      document.getElementById('btn-modal-favorite')?.addEventListener('click', async function () {
+        const user = auth.currentUser;
+
+        if (!user) {
+          alert("Debes iniciar sesión para guardar este libro en tus favoritos.");
+          window.location.href = "login.html";
+          return;
+        }
+
+        if (this.classList.contains('favorited')) {
+          alert('Este libro ya fue agregado a tus favoritos en esta sesión.');
+          return;
+        }
+
+        const tituloLibro = document.getElementById('modal-title').innerText;
+        let autorLibro = document.getElementById('modal-author').innerText;
+        autorLibro = autorLibro.replace('Por ', '');
+
+        try {
+          await addDoc(collection(db, "favoritos"), {
+            usuarioEmail: user.email,
+            titulo: tituloLibro,
+            autor: autorLibro,
+            fechaAgregado: serverTimestamp()
+          });
+
+          this.classList.add('favorited');
+          this.innerHTML = '💖 Guardado en Favoritos';
+          alert(`¡"${tituloLibro}" se guardó en tus favoritos exitosamente!`);
+
+        } catch (error) {
+          console.error("Error al guardar en favoritos:", error);
+          alert("Hubo un error al guardar tu favorito. Intenta de nuevo.");
+        }
+      });
     </script>
     <!-- Enlace a la lógica global de navegación y sesión -->
 <script type="module" src="../js/app.js"></script>

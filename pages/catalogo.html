@@ -146,13 +146,17 @@
 
   <!-- SCRIPT BASE CORREGIDO -->
   <script>
-    function openBookModal(title, author, category, description, rating, status) {
+    function openBookModal(title, author, category, description, rating, status, copias) {
       document.getElementById('modal-title').innerText = title;
       document.getElementById('modal-author').innerText = 'Por ' + author;
       document.getElementById('modal-category').innerText = category;
       document.getElementById('modal-description-text').innerText = description;
       document.getElementById('modal-rating').innerText = rating;
-      document.getElementById('modal-status').innerText = status;
+
+      const estadoTexto = (status === 'Disponible' && typeof copias === 'number')
+        ? `Disponible (${copias} ${copias === 1 ? 'copia' : 'copias'})`
+        : status;
+      document.getElementById('modal-status').innerText = estadoTexto;
 
       const btnBorrow = document.getElementById('btn-modal-borrow');
       if (status === 'Prestado') {
@@ -245,7 +249,11 @@
           const autor = libro.autor || 'Desconocido';
           const categoria = (libro.categoria || 'general').toLowerCase();
           const descripcion = libro.descripcion || 'Sin descripción disponible.';
-          const estado = (libro.estado === "Disponible" || libro.disponible) ? "Disponible" : "Prestado";
+          const estado = (() => {
+            const cantidad = libro.cantidad !== undefined ? libro.cantidad : (libro.disponible ? 1 : 0);
+            return cantidad > 0 ? "Disponible" : "Prestado";
+          })();
+          const cantidadCopias = libro.cantidad !== undefined ? libro.cantidad : (libro.disponible ? 1 : 0);
           const color = libro.color || 'book-red';
           
           const bookDiv = document.createElement('div');
@@ -254,7 +262,7 @@
           
           // Asignar evento click para abrir el modal con los datos limpios
           bookDiv.addEventListener('click', () => {
-             window.openBookModal(titulo, autor, libro.categoria || 'General', descripcion, 'N/A', estado);
+             window.openBookModal(titulo, autor, libro.categoria || 'General', descripcion, 'N/A', estado, cantidadCopias);
           });
 
           bookDiv.innerHTML = `
@@ -278,14 +286,15 @@
             const titulo = libro.titulo || 'Sin título';
             const autor = libro.autor || 'Desconocido';
             const prestamos = libro.prestamosSemanales || 0;
-            const estado = (libro.estado === "Disponible" || libro.disponible) ? "Disponible" : "Prestado";
+            const cantidadCopias = libro.cantidad !== undefined ? libro.cantidad : (libro.disponible ? 1 : 0);
+            const estado = cantidadCopias > 0 ? "Disponible" : "Prestado";
             const cover = emojisCover[index] || '📓';
 
             const article = document.createElement('article');
             article.className = 'fame-card';
             
             article.addEventListener('click', () => {
-               window.openBookModal(titulo, autor, libro.categoria || 'General', libro.descripcion || '', 'N/A', estado);
+               window.openBookModal(titulo, autor, libro.categoria || 'General', libro.descripcion || '', 'N/A', estado, cantidadCopias);
             });
 
             article.innerHTML = `
