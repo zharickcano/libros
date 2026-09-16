@@ -551,3 +551,27 @@ body {
 .nav-search-box:hover .search-btn {
   color: var(--color-primary, #1e3a8a);
 }
+/* Botón "Ver más" debajo de Libros Disponibles (index) */
+.ver-mas-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.btn-outline-primary {
+  display: inline-block;
+  padding: 0.7rem 1.6rem;
+  border-radius: 30px;
+  border: 2px solid var(--color-primary, #1e3a8a);
+  color: var(--color-primary, #1e3a8a);
+  background: transparent;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-primary:hover {
+  background: var(--color-primary, #1e3a8a);
+  color: #ffffff;
+}

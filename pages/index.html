@@ -61,7 +61,7 @@
             Explora miles de historias, conocimientos y aventuras guardadas bajo
             la atenta mirada del búho sabio.
           </p>
-          <a href="catalogo.html" class="btn btn-primary">Explorar Catálogo</a>
+          <a href="#catalogo" class="btn btn-primary">Explorar Catálogo</a>
         </div>
         <div class="hero-image-container">
           <img
@@ -120,12 +120,19 @@
 
     <!-- Funciones globales del modal (compartidas, no-módulo, para usarlas desde onclick) -->
     <script>
-      function openBookModal(title, author, category, description, rating, status, copias) {
+      function openBookModal(title, author, category, description, rating, status, copias, imagenUrl) {
         document.getElementById('modal-title').innerText = title;
         document.getElementById('modal-author').innerText = 'Por ' + author;
         document.getElementById('modal-category').innerText = category;
         document.getElementById('modal-description-text').innerText = description;
         document.getElementById('modal-rating').innerText = rating;
+
+        const modalCover = document.getElementById('modal-cover');
+        if (imagenUrl) {
+          modalCover.innerHTML = `<img src="${imagenUrl}" alt="Portada de ${title}" onerror="this.parentElement.innerHTML='📖'">`;
+        } else {
+          modalCover.innerHTML = '📖';
+        }
 
         const estadoTexto = (status === 'Disponible' && typeof copias === 'number')
           ? `Disponible (${copias} ${copias === 1 ? 'copia' : 'copias'})`
@@ -160,20 +167,18 @@
     </script>
 
     <!-- PIE DE PÁGINA -->
-<footer class="footer">
-  <div class="footer-content">
-    <div class="footer-brand">
-      <h3>🦉 Biblioteca El Sabio</h3>
-      <p>Cultivando la lectura y el aprendizaje en un espacio sereno.</p>
-    </div>
-
-    <div class="footer-info">
-      <p><strong>Horario:</strong> Lunes a Viernes 08:00 - 18:00 hs</p>
-      <p>© 2026 Biblioteca El Sabio — Todos los derechos reservados.</p>
-      <p><a href="ayuda.html" class="footer-help-link"> Centro de Ayuda</a></p>
-    </div>
-  </div>
-</footer>
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h3>🦉 Biblioteca El Sabio</h3>
+          <p>Cultivando la lectura y el aprendizaje en un espacio sereno.</p>
+        </div>
+        <div class="footer-info">
+          <p><strong>Horario:</strong> Lunes a Viernes 08:00 - 18:00 hs</p>
+          <p>© 2026 Biblioteca El Sabio — Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </footer>
 
     <!-- LÓGICA DE FIREBASE PARA LECTURA DEL CATÁLOGO -->
     <script type="module">
@@ -213,19 +218,27 @@
             return;
           }
 
-          querySnapshot.forEach((doc) => {
-            const libro = doc.data();
+          const todosLosLibros = [];
+          querySnapshot.forEach((doc) => todosLosLibros.push(doc.data()));
+
+          const LIMITE_INICIO = 6;
+          const librosAMostrar = todosLosLibros.slice(0, LIMITE_INICIO);
+
+          librosAMostrar.forEach((libro) => {
             const cantidad =
               libro.cantidad !== undefined
                 ? libro.cantidad
                 : (libro.disponible !== false ? 1 : 0);
             const disponible = cantidad > 0;
+            const imagenUrl = libro.imagenUrl || "";
 
             const card = document.createElement("article");
             card.className = "book-card";
             card.style.cursor = "pointer";
             card.innerHTML = `
-            <div class="book-cover-placeholder">📖</div>
+            <div class="book-cover-placeholder">
+              ${imagenUrl ? `<img src="${imagenUrl}" alt="Portada de ${libro.titulo}" class="book-cover-img" onerror="this.parentElement.innerHTML='📖'">` : "📖"}
+            </div>
             <div class="book-info">
               <h3 class="book-title">${libro.titulo}</h3>
               <p class="book-author">Por <span>${libro.autor}</span></p>
@@ -244,12 +257,25 @@
                 libro.descripcion || "Sin descripción disponible.",
                 "N/A",
                 disponible ? "Disponible" : "Prestado",
-                cantidad
+                cantidad,
+                imagenUrl
               );
             });
 
             listaLibros.appendChild(card);
           });
+
+          // Botón "Ver más" si hay más libros de los que se muestran aquí
+          if (todosLosLibros.length > LIMITE_INICIO) {
+            const verMasWrap = document.createElement("div");
+            verMasWrap.className = "ver-mas-wrap";
+            verMasWrap.innerHTML = `
+              <a href="catalogo.html" class="btn btn-outline-primary">
+                Ver todos los libros (${todosLosLibros.length}) →
+              </a>
+            `;
+            listaLibros.insertAdjacentElement("afterend", verMasWrap);
+          }
         } catch (error) {
           console.error("Error al consultar libros:", error);
           listaLibros.innerHTML =

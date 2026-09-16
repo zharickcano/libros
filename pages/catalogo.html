@@ -80,6 +80,8 @@
         <button class="chip" onclick="filterCategory('ciencia-ficcion', this)">🚀 Ciencia Ficción</button>
         <button class="chip" onclick="filterCategory('historia', this)">🏛️ Historia</button>
         <button class="chip" onclick="filterCategory('misterio', this)">🔍 Misterio</button>
+         <button class="chip" onclick="filterCategory('novela', this)">📖 novela</button>
+          <button class="chip" onclick="filterCategory('infantil', this)">🎠 infantil</button>
       </div>
     </section>
 
@@ -93,6 +95,9 @@
         <p>🔎 No encontramos libros que coincidan con tu búsqueda.</p>
         <p class="search-empty-hint">Prueba con otro título, autor, o revisa la ortografía.</p>
       </div>
+
+      <!-- Controles de paginación -->
+      <div id="paginacion-container" class="paginacion-container" style="display: none;"></div>
     </section>
   </main>
 
@@ -190,20 +195,6 @@
       const modal = document.getElementById('book-modal');
       if (e.target === modal) closeBookModal();
     });
-
-    function filterCategory(category, chipBtn) {
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      chipBtn.classList.add('active');
-
-      const books = document.querySelectorAll('.shelf-book-item');
-      books.forEach(book => {
-        if (category === 'todos' || book.getAttribute('data-category') === category) {
-          book.style.display = 'flex';
-        } else {
-          book.style.display = 'none';
-        }
-      });
-    }
   </script>
 
   <!-- MÓDULO FIREBASE Y BUSCADOR CORREGIDO -->
@@ -231,61 +222,142 @@
     // ==========================================
     const shelfContainer = document.getElementById('shelf-container');
     const fameContainer = document.querySelector('.fame-grid');
+    const emptyState = document.getElementById('search-empty-state');
+    const paginacionContainer = document.getElementById('paginacion-container');
+
+    const LIBROS_POR_PAGINA = 8;
+    let libros = [];
+    let categoriaActual = 'todos';
+    let busquedaActual = '';
+    let paginaActual = 1;
+
+    // Crea el elemento visual de un libro en la estantería
+    function crearLibroDiv(libro) {
+      const titulo = libro.titulo || 'Sin título';
+      const autor = libro.autor || 'Desconocido';
+      const categoria = (libro.categoria || 'general').toLowerCase();
+      const descripcion = libro.descripcion || 'Sin descripción disponible.';
+      const cantidadCopias = libro.cantidad !== undefined ? libro.cantidad : (libro.disponible ? 1 : 0);
+      const estado = cantidadCopias > 0 ? "Disponible" : "Prestado";
+      const color = libro.color || 'book-red';
+      const imagenUrl = libro.imagenUrl || '';
+
+      const bookDiv = document.createElement('div');
+      bookDiv.className = 'shelf-book-item';
+      bookDiv.setAttribute('data-category', categoria);
+
+      bookDiv.addEventListener('click', () => {
+        window.openBookModal(titulo, autor, libro.categoria || 'General', descripcion, 'N/A', estado, cantidadCopias, imagenUrl);
+      });
+
+      bookDiv.innerHTML = `
+        <div class="book-spine ${color} ${imagenUrl ? 'has-cover' : ''}" ${imagenUrl ? `style="background-image: url('${imagenUrl}');"` : ''}>
+          ${imagenUrl ? '' : `<span class="book-title">${titulo}</span><span class="book-author">${autor}</span>`}
+        </div>
+        <div class="shelf-wood"></div>
+      `;
+      return bookDiv;
+    }
+
+    // Aplica el filtro de categoría + la búsqueda de texto sobre el array completo
+    function librosFiltrados() {
+      return libros.filter(libro => {
+        const categoria = (libro.categoria || 'general').toLowerCase();
+        const coincideCategoria = categoriaActual === 'todos' || categoria === categoriaActual;
+
+        const texto = `${libro.titulo || ''} ${libro.autor || ''}`.toLowerCase();
+        const coincideBusqueda = !busquedaActual || texto.includes(busquedaActual);
+
+        return coincideCategoria && coincideBusqueda;
+      });
+    }
+
+    // Dibuja SOLO la página actual de resultados + los controles de paginación
+    function renderEstanteria() {
+      const filtrados = librosFiltrados();
+      const totalPaginas = Math.max(1, Math.ceil(filtrados.length / LIBROS_POR_PAGINA));
+      if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+
+      shelfContainer.innerHTML = '';
+
+      if (filtrados.length === 0) {
+        emptyState.style.display = 'block';
+        paginacionContainer.style.display = 'none';
+        return;
+      }
+      emptyState.style.display = 'none';
+
+      const inicio = (paginaActual - 1) * LIBROS_POR_PAGINA;
+      const paginaDeLibros = filtrados.slice(inicio, inicio + LIBROS_POR_PAGINA);
+      paginaDeLibros.forEach(libro => shelfContainer.appendChild(crearLibroDiv(libro)));
+
+      renderPaginacion(totalPaginas);
+    }
+
+    // Dibuja los botones "‹ Anterior", números de página y "Siguiente ›"
+    function renderPaginacion(totalPaginas) {
+      if (totalPaginas <= 1) {
+        paginacionContainer.style.display = 'none';
+        paginacionContainer.innerHTML = '';
+        return;
+      }
+
+      paginacionContainer.style.display = 'flex';
+      let html = `<button class="page-btn page-nav" data-page="prev" ${paginaActual === 1 ? 'disabled' : ''} aria-label="Página anterior">‹</button>`;
+
+      for (let i = 1; i <= totalPaginas; i++) {
+        html += `<button class="page-btn ${i === paginaActual ? 'active' : ''}" data-page="${i}">${i}</button>`;
+      }
+
+      html += `<button class="page-btn page-nav" data-page="next" ${paginaActual === totalPaginas ? 'disabled' : ''} aria-label="Página siguiente">›</button>`;
+      paginacionContainer.innerHTML = html;
+
+      paginacionContainer.querySelectorAll('.page-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (btn.disabled) return;
+          const p = btn.dataset.page;
+          if (p === 'prev') paginaActual = Math.max(1, paginaActual - 1);
+          else if (p === 'next') paginaActual = Math.min(totalPaginas, paginaActual + 1);
+          else paginaActual = parseInt(p);
+
+          renderEstanteria();
+          document.querySelector('.bookshelf-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    }
+
+    // Filtro por categoría (llamado desde los chips en el HTML)
+    window.filterCategory = function (category, chipBtn) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chipBtn.classList.add('active');
+      categoriaActual = category;
+      paginaActual = 1;
+      renderEstanteria();
+    };
 
     async function cargarCatalogo() {
       try {
         const querySnapshot = await getDocs(collection(db, "libros"));
-        
-        // Limpiamos los libros quemados (estáticos) del HTML
-        shelfContainer.innerHTML = '';
+
         if (fameContainer) fameContainer.innerHTML = '';
 
-        let librosArray = [];
+        libros = [];
         querySnapshot.forEach((doc) => {
-          librosArray.push({ id: doc.id, ...doc.data() });
+          libros.push({ id: doc.id, ...doc.data() });
         });
 
-        if (librosArray.length === 0) {
+        if (libros.length === 0) {
           shelfContainer.innerHTML = '<p style="color:white; padding: 2rem; width: 100%; text-align: center;">No hay libros registrados aún en la biblioteca.</p>';
+          paginacionContainer.style.display = 'none';
           return;
         }
 
-        // A. Poblar Estantería Virtual
-        librosArray.forEach(libro => {
-          const titulo = libro.titulo || 'Sin título';
-          const autor = libro.autor || 'Desconocido';
-          const categoria = (libro.categoria || 'general').toLowerCase();
-          const descripcion = libro.descripcion || 'Sin descripción disponible.';
-          const estado = (() => {
-            const cantidad = libro.cantidad !== undefined ? libro.cantidad : (libro.disponible ? 1 : 0);
-            return cantidad > 0 ? "Disponible" : "Prestado";
-          })();
-          const cantidadCopias = libro.cantidad !== undefined ? libro.cantidad : (libro.disponible ? 1 : 0);
-          const color = libro.color || 'book-red';
-          const imagenUrl = libro.imagenUrl || '';
-
-          const bookDiv = document.createElement('div');
-          bookDiv.className = 'shelf-book-item';
-          bookDiv.setAttribute('data-category', categoria);
-          
-          // Asignar evento click para abrir el modal con los datos limpios
-          bookDiv.addEventListener('click', () => {
-             window.openBookModal(titulo, autor, libro.categoria || 'General', descripcion, 'N/A', estado, cantidadCopias, imagenUrl);
-          });
-
-          bookDiv.innerHTML = `
-            <div class="book-spine ${color} ${imagenUrl ? 'has-cover' : ''}" ${imagenUrl ? `style="background-image: url('${imagenUrl}');"` : ''}>
-              <span class="book-title">${titulo}</span>
-              <span class="book-author">${autor}</span>
-            </div>
-            <div class="shelf-wood"></div>
-          `;
-          shelfContainer.appendChild(bookDiv);
-        });
+        // A. Poblar Estantería Virtual (con paginación)
+        renderEstanteria();
 
         // B. Poblar Salón de la Fama (Top 3 más prestados)
         // Ordenamos el array de mayor a menor según los préstamos semanales
-        const topLibros = [...librosArray].sort((a, b) => (b.prestamosSemanales || 0) - (a.prestamosSemanales || 0)).slice(0, 3);
+        const topLibros = [...libros].sort((a, b) => (b.prestamosSemanales || 0) - (a.prestamosSemanales || 0)).slice(0, 3);
         
         if (fameContainer && topLibros.length > 0) {
           const emojisCover = ['📕', '📘', '📙'];
@@ -415,7 +487,6 @@
 
     searchInput?.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase().trim();
-      const books = document.querySelectorAll('.shelf-book-item');
 
       // Bajar automáticamente a la estantería al empezar a buscar
       if (query.length > 0 && !yaHizoScroll) {
@@ -425,25 +496,9 @@
         yaHizoScroll = false; // Reinicia el scroll si el usuario borra la búsqueda
       }
 
-      let coincidencias = 0;
-
-      books.forEach(book => {
-        const title = book.querySelector('.book-title').innerText.toLowerCase();
-        const author = book.querySelector('.book-author').innerText.toLowerCase();
-
-        if (title.includes(query) || author.includes(query)) {
-          book.style.display = 'flex';
-          coincidencias++;
-        } else {
-          book.style.display = 'none';
-        }
-      });
-
-      // Mostrar mensaje de "sin resultados" si no hay coincidencias
-      const emptyState = document.getElementById('search-empty-state');
-      if (emptyState) {
-        emptyState.style.display = (query.length > 0 && coincidencias === 0) ? 'block' : 'none';
-      }
+      busquedaActual = query;
+      paginaActual = 1;
+      renderEstanteria();
     });
   </script>
 

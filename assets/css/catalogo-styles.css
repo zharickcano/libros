@@ -226,11 +226,13 @@
   font-size: 0.95rem;
   font-weight: 700;
   line-height: 1.2;
+  color: #eae9e9;
 }
 
 .book-author {
   font-size: 0.75rem;
   opacity: 0.85;
+  color: #eae9e9;
 }
 
 /* VARIACIONES DE COLOR DE LIBROS */
@@ -247,21 +249,6 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-}
-
-.book-spine.has-cover::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 0.75) 100%);
-}
-
-.book-spine.has-cover .book-title,
-.book-spine.has-cover .book-author {
-  position: relative;
-  z-index: 1;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 /* MADERA DE LA ESTANTERÍA */
@@ -424,4 +411,48 @@
 .search-empty-hint {
   font-size: 0.9rem;
   opacity: 0.75;
+}
+
+/* Controles de paginación de la estantería */
+.paginacion-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 0.6rem;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.page-btn.active {
+  background-color: var(--color-primary, #1e3a8a);
+  color: #ffffff;
+  border-color: var(--color-primary, #1e3a8a);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-nav {
+  font-size: 1.1rem;
 }
