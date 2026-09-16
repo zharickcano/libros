@@ -146,12 +146,19 @@
 
   <!-- SCRIPT BASE CORREGIDO -->
   <script>
-    function openBookModal(title, author, category, description, rating, status, copias) {
+    function openBookModal(title, author, category, description, rating, status, copias, imagenUrl) {
       document.getElementById('modal-title').innerText = title;
       document.getElementById('modal-author').innerText = 'Por ' + author;
       document.getElementById('modal-category').innerText = category;
       document.getElementById('modal-description-text').innerText = description;
       document.getElementById('modal-rating').innerText = rating;
+
+      const modalCover = document.getElementById('modal-cover');
+      if (imagenUrl) {
+        modalCover.innerHTML = `<img src="${imagenUrl}" alt="Portada de ${title}" onerror="this.parentElement.innerHTML='📖'">`;
+      } else {
+        modalCover.innerHTML = '📖';
+      }
 
       const estadoTexto = (status === 'Disponible' && typeof copias === 'number')
         ? `Disponible (${copias} ${copias === 1 ? 'copia' : 'copias'})`
@@ -255,18 +262,19 @@
           })();
           const cantidadCopias = libro.cantidad !== undefined ? libro.cantidad : (libro.disponible ? 1 : 0);
           const color = libro.color || 'book-red';
-          
+          const imagenUrl = libro.imagenUrl || '';
+
           const bookDiv = document.createElement('div');
           bookDiv.className = 'shelf-book-item';
           bookDiv.setAttribute('data-category', categoria);
           
           // Asignar evento click para abrir el modal con los datos limpios
           bookDiv.addEventListener('click', () => {
-             window.openBookModal(titulo, autor, libro.categoria || 'General', descripcion, 'N/A', estado, cantidadCopias);
+             window.openBookModal(titulo, autor, libro.categoria || 'General', descripcion, 'N/A', estado, cantidadCopias, imagenUrl);
           });
 
           bookDiv.innerHTML = `
-            <div class="book-spine ${color}">
+            <div class="book-spine ${color} ${imagenUrl ? 'has-cover' : ''}" ${imagenUrl ? `style="background-image: url('${imagenUrl}');"` : ''}>
               <span class="book-title">${titulo}</span>
               <span class="book-author">${autor}</span>
             </div>
@@ -288,13 +296,16 @@
             const prestamos = libro.prestamosSemanales || 0;
             const cantidadCopias = libro.cantidad !== undefined ? libro.cantidad : (libro.disponible ? 1 : 0);
             const estado = cantidadCopias > 0 ? "Disponible" : "Prestado";
-            const cover = emojisCover[index] || '📓';
+            const imagenUrl = libro.imagenUrl || '';
+            const cover = imagenUrl
+              ? `<img src="${imagenUrl}" alt="Portada de ${titulo}">`
+              : (emojisCover[index] || '📓');
 
             const article = document.createElement('article');
             article.className = 'fame-card';
             
             article.addEventListener('click', () => {
-               window.openBookModal(titulo, autor, libro.categoria || 'General', libro.descripcion || '', 'N/A', estado, cantidadCopias);
+               window.openBookModal(titulo, autor, libro.categoria || 'General', libro.descripcion || '', 'N/A', estado, cantidadCopias, imagenUrl);
             });
 
             article.innerHTML = `

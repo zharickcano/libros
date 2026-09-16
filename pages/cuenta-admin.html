@@ -132,6 +132,8 @@
                 <option value="ciencia-ficcion">Ciencia Ficción</option>
                 <option value="historia">Historia</option>
                 <option value="misterio">Misterio</option>
+                 <option value="novela">Novela</option>
+                  <option value="infantil">Infantil</option>
               </select>
             </div>
 
@@ -174,6 +176,23 @@
                 value="0"
                 placeholder="Ej. 25"
               />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="libro-imagen">URL de Portada (opcional)</label>
+              <input
+                type="url"
+                id="libro-imagen"
+                placeholder="https://ejemplo.com/portada.jpg"
+              />
+              <small class="field-hint">Pega el enlace de una imagen de portada. Si lo dejas vacío, el libro se mostrará con su color de lomo.</small>
+            </div>
+
+            <div class="form-group">
+              <label>Vista previa</label>
+              <div id="preview-portada" class="preview-portada">Sin imagen</div>
             </div>
           </div>
 
@@ -235,6 +254,7 @@
           <table class="admin-table">
             <thead>
               <tr>
+                <th>Portada</th>
                 <th>Título</th>
                 <th>Autor</th>
                 <th>Copias</th>
@@ -244,7 +264,7 @@
             </thead>
             <tbody id="tabla-libros">
               <tr>
-                <td colspan="5" class="text-center">Cargando inventario...</td>
+                <td colspan="6" class="text-center">Cargando inventario...</td>
               </tr>
             </tbody>
           </table>
@@ -336,6 +356,8 @@
       const selectColor = document.getElementById("libro-color");
       const inputCantidad = document.getElementById("libro-cantidad");
       const inputPrestamos = document.getElementById("libro-prestamos");
+      const inputImagen = document.getElementById("libro-imagen");
+      const previewPortada = document.getElementById("preview-portada");
       const inputDescripcion = document.getElementById("libro-descripcion");
 
       const btnSubmit = document.getElementById("btn-guardar-libro");
@@ -568,7 +590,7 @@
 
           if (querySnapshot.empty) {
             tablaLibros.innerHTML =
-              '<tr><td colspan="5" class="text-center">No hay libros registrados.</td></tr>';
+              '<tr><td colspan="6" class="text-center">No hay libros registrados.</td></tr>';
             statTotal.innerText = "0";
             statDisponibles.innerText = "0";
             return;
@@ -588,6 +610,9 @@
 
             const fila = document.createElement("tr");
             fila.innerHTML = `
+          <td class="cover-cell">
+            ${libro.imagenUrl ? `<img src="${libro.imagenUrl}" alt="Portada de ${libro.titulo}" class="cover-thumb" onerror="this.replaceWith(document.createTextNode('📖'))">` : "📖"}
+          </td>
           <td><strong>${libro.titulo}</strong></td>
           <td>${libro.autor}</td>
           <td>${cantidad}</td>
@@ -612,6 +637,17 @@
         }
       }
 
+      // Vista previa en vivo de la portada
+      function actualizarPreviewPortada() {
+        const url = inputImagen.value.trim();
+        if (url) {
+          previewPortada.innerHTML = `<img src="${url}" alt="Vista previa de portada" onerror="this.parentElement.innerHTML='⚠️ No se pudo cargar la imagen'">`;
+        } else {
+          previewPortada.innerHTML = "Sin imagen";
+        }
+      }
+      inputImagen.addEventListener("input", actualizarPreviewPortada);
+
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const id = inputId.value;
@@ -624,6 +660,7 @@
           disponible: cantidad > 0,
           categoria: selectCategoria.value,
           color: selectColor.value,
+          imagenUrl: inputImagen.value.trim(),
           prestamosSemanales: parseInt(inputPrestamos.value) || 0,
           descripcion: inputDescripcion.value.trim(),
         };
@@ -663,6 +700,8 @@
               selectCategoria.value = libro.categoria || "";
               selectColor.value = libro.color || "book-red";
               inputPrestamos.value = libro.prestamosSemanales || 0;
+              inputImagen.value = libro.imagenUrl || "";
+              actualizarPreviewPortada();
               inputDescripcion.value = libro.descripcion || "";
 
               if (formIcon) formIcon.innerText = "✏️";
@@ -688,6 +727,7 @@
       function resetFormulario() {
         inputId.value = "";
         form.reset();
+        actualizarPreviewPortada();
         if (formIcon) formIcon.innerText = "📖";
         btnSubmit.innerText = "💾 Guardar Libro en Catálogo";
       }
